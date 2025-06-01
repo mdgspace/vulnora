@@ -1,0 +1,87 @@
+body {
+  background: linear-gradient(45deg, #4568dc,#b06ab3);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rep-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.title {
+  margin-bottom: 2rem;
+  color: white;
+  font-size: 2rem;
+  width: 100%;
+  text-align: center;
+}
+
+.pdf-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-direction: column;
+}
+
+.pdf {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  height: 400px;
+  max-width: 600px;
+}
+
+.loadingText {
+  margin: 2rem 0;
+  color: white;
+  width: 100%;
+  text-align: center;
+  font-size: 1.2rem;
+}
+
+.dwnldBtn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 1rem;
+}
+
+.dwnldBtn:hover {
+  background-color: #45a049;
+}
+
+@media (max-width: 768px) {
+  .rep-container {
+    width: 95%;
+    padding: 1rem;
+  }
+  
+  .pdf {
+    height: 400px;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+  }
+}
