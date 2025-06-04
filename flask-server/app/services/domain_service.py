@@ -1,13 +1,17 @@
+from app.services.file_upload import check_file_upload
+
+
 class DomainService:
 
     supported_attacks = {
         "xss": "Cross-Site Scripting",
         "sql_injection": "SQL Injection",
+        "file_upload": "File Upload",
         # Add more attack types here
     }
 
     @staticmethod
-    def scan_domain(domain, attacks):
+    def scan_domain(domain, attacks, upload_endpoint):
         results = {}
 
         for attack in attacks:
@@ -15,6 +19,8 @@ class DomainService:
                 results['xss'] = DomainService.check_xss(domain)
             elif attack == "sql_injection":
                 results['sql_injection'] = DomainService.check_sql_injection(domain)
+            elif attack == "file_upload":
+                results['file_upload'] = check_file_upload(domain, upload_endpoint)   
             # Add more attack types here
             else:
                 results[attack] = "Unknown attack type"
