@@ -53,10 +53,11 @@ const DomainInput = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("/api/scan", {
+      const response = await axios.post("/api/scan", {
         domain: domainUrl,
         attacks: attack.map((a) => a.value),
       });
+      console.log(response);
       navigate(`/report/${encodeURIComponent(domainUrl)}`);
     } catch (error) {
       console.error("Error occurred while scanning", error);
