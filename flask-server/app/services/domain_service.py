@@ -1,3 +1,5 @@
+from app.services.csrf_scanner import scan_csrf_vulnerability
+
 class DomainService:
 
     supported_attacks = {
@@ -56,8 +58,7 @@ class DomainService:
     
     @staticmethod
     def check_csrf(domain):
-        # Mock logic for csrf vulnerability
-        return "Potential csrf vulnerability found"
+        return scan_csrf_vulnerability(domain)
 
     @staticmethod
     def check_path_traversal(domain):
