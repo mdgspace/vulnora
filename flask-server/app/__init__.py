@@ -7,5 +7,6 @@ def create_app():
     from app.routes.domain_routes import domain_bp
     app.register_blueprint(domain_bp, url_prefix='/api')
 
+   
 
     return app
