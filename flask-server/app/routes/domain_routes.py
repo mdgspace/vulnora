@@ -21,3 +21,18 @@ def scan_domain():
 def get_supported_attacks():
     attacks = DomainService.get_supported_attacks()
     return jsonify({"attacks": attacks}), 200
+
+@domain_bp.route('/run-sqlmap', methods=['POST'])
+def run_sqlmap():
+
+    data = request.get_json()
+    
+    if not data or 'url' not in data:
+        return jsonify({'error': 'Missing target URL'}), 400
+    
+    target_url = data['url']
+    
+   
+    result = DomainService.check_sql_injection(target_url)
+    
+    return jsonify(result)
