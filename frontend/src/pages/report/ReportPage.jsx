@@ -1,18 +1,28 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./Report.css"
+import axios from "axios";
 
 const ReportPage = () => {
     const {domainUrl} = useParams()
     const url = decodeURIComponent(domainUrl)
     const [pdfUrl, setPdf] = useState(null)
-    
-    useEffect(() => {
-    // will replace this with an api request once backend made
-    setPdf("https://files.eric.ed.gov/fulltext/EJ1172284.pdf");
-  }, []);
+    const backendUrl = import.meta.env.VITE_BACKEND_URL
 
-  return (
+    useEffect(() => {
+        const fetchReport = async () => {
+            try {
+                const response = await axios.get(`${backendUrl}/api/report/${encodeURIComponent(url)}`);
+                setPdf(response.data.pdf_url);
+            } catch (error) {
+                console.error("Error fetching report:", error);
+            }
+        };
+
+        fetchReport();
+    }, [url, backendUrl]);
+
+    return (
         <div className="rep-container">
             <h1 className="title">Report Page</h1>
             {pdfUrl == null ? (
@@ -28,7 +38,6 @@ const ReportPage = () => {
                    </a>
                 </div>
             )}
-            
         </div>
     );
 };

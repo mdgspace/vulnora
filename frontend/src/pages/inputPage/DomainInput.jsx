@@ -9,11 +9,12 @@ const DomainInput = () => {
   const [domainUrl, setUrl] = useState("");
   const [attack, setAttack] = useState([]);
   const [attackOptions, setAttackOptions] = useState([]);
+  const backendUrl = import.meta.env.VITE_BACKEND_URL
 
   useEffect(() => {
     const fetchAttacks = async () => {
       try {
-        const response = await axios.get("/api/attacks");
+        const response = await axios.get(backendUrl + "/api/attacks");
         console.log(response);
         
         const attackObj = response.data.attacks;
@@ -53,7 +54,7 @@ const DomainInput = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("/api/scan", {
+      await axios.post(backendUrl + "/api/scan", {
         domain: domainUrl,
         attacks: attack.map((a) => a.value),
       });
