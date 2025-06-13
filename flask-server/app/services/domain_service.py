@@ -1,8 +1,11 @@
+from app.services.cmd_injection import check_cmd_injection
+
 class DomainService:
 
     supported_attacks = {
         "xss": "Cross-Site Scripting",
         "sql_injection": "SQL Injection",
+        "cmd_injection": "Command Injection",
         # Add more attack types here
     }
 
@@ -15,6 +18,8 @@ class DomainService:
                 results['xss'] = DomainService.check_xss(domain)
             elif attack == "sql_injection":
                 results['sql_injection'] = DomainService.check_sql_injection(domain)
+            elif attack == "cmd_injection":
+                results['cmd_injection']  = check_cmd_injection(domain)  
             # Add more attack types here
             else:
                 results[attack] = "Unknown attack type"
