@@ -36,11 +36,14 @@ from reportlab.lib import colors
 import os
 from datetime import datetime
 
+from app.services.cmd_injection import check_cmd_injection
+
 class DomainService:
 
     supported_attacks = {
         "Cross-Site Scripting": "Cross-Site Scripting",
         "sql_injection": "SQL Injection",
+        "cmd_injection": "Command Injection",
         "jwt_vulnerabilities": "JWT Vulnerabilities",
         "path_traversal": "Path Traversal",
         "csrf":"CSRF",
@@ -68,6 +71,8 @@ class DomainService:
                 results['Cross-Site Scripting'] = DomainService.check_xss(domain)
             elif attack == "sql_injection":
                 results['sql_injection'] = DomainService.check_sql_injection(domain)
+            elif attack == "cmd_injection":
+                results['cmd_injection']  = check_cmd_injection(domain)  
             elif attack == "jwt_vulnerabilities":
                 results['jwt_vulnerabilities'] = DomainService.check_jwt_vulnerabilities(domain)
             elif attack == "csrf":
@@ -76,17 +81,17 @@ class DomainService:
             #     results['path_traversal'] = DomainService.check_path_traversal(domain)            
             elif attack == "insecure_deserialization":
                 results['insecure_deserialization'] = DomainService.check_insecure_deserialization(domain)            
-            elif attack == "command_injection":
-                results['command_injection'] = DomainService.check_command_injection(domain)            
+            # elif attack == "command_injection":
+            #     results['command_injection'] = DomainService.check_command_injection(domain)            
             elif attack == "jwt":
                 results['jwt'] = DomainService.check_jwt(domain)            
             elif attack == "ddos":
                 results['ddos'] = DomainService.check_ddos(domain)           
             elif attack == "file_upload":
-                results['file_upload'] = check_file_upload(domain, upload_endpoint)   
-            # Add more attack types here
+                results['file_upload'] = check_file_upload(domain, upload_endpoint)
             elif attack == "path_traversal":
-                results['path_traversal'] = check_path_traversal(domain, vuln_endpoint)
+                results['path_traversal'] = check_path_traversal(domain, vuln_endpoint)   
+            # Add more attack types here
             else:
                 results[attack] = "Unknown attack type"
 
