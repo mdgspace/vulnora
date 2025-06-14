@@ -5,6 +5,9 @@ import json
 
 from app.services.csrf_scanner import scan_csrf_vulnerability
 
+from app.services.file_upload import check_file_upload
+
+
 class DomainService:
 
     supported_attacks = {
@@ -17,10 +20,12 @@ class DomainService:
         "jwt":"JWT Manipulation",
         "file_upload":"File Upload",
         "ddos":"DDoS Attacks"
+        "file_upload": "File Upload",
+        # Add more attack types here
     }
 
     @staticmethod
-    def scan_domain(domain, attacks):
+    def scan_domain(domain, attacks, upload_endpoint):
         results = {}
 
         for attack in attacks:
@@ -44,6 +49,10 @@ class DomainService:
             elif attack == "ddos":
                 results['ddos'] = DomainService.check_ddos(domain)            
             else:            
+            elif attack == "file_upload":
+                results['file_upload'] = check_file_upload(domain, upload_endpoint)   
+            # Add more attack types here
+            else:
                 results[attack] = "Unknown attack type"
 
 
