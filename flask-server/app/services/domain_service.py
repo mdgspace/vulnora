@@ -62,8 +62,8 @@ class DomainService:
                 results['jwt_vulnerabilities'] = DomainService.check_jwt_vulnerabilities(domain)
             elif attack == "csrf":
                 results['csrf'] = DomainService.check_csrf(domain)            
-            elif attack == "path_traversal":
-                results['path_traversal'] = DomainService.check_path_traversal(domain)            
+            # elif attack == "path_traversal":
+            #     results['path_traversal'] = DomainService.check_path_traversal(domain)            
             elif attack == "insecure_deserialization":
                 results['insecure_deserialization'] = DomainService.check_insecure_deserialization(domain)            
             elif attack == "command_injection":
@@ -312,10 +312,10 @@ class DomainService:
     def check_csrf(domain):
         return scan_csrf_vulnerability(domain)
 
-    @staticmethod
-    def check_path_traversal(domain):
-        # Mock logic for path traversal vulnerability
-        return "Potential path traversal vulnerability found"
+    # @staticmethod
+    # def check_path_traversal(domain):
+    #     # Mock logic for path traversal vulnerability
+    #     return "Potential path traversal vulnerability found"
     
     @staticmethod
     def check_command_injection(domain):

@@ -35,7 +35,6 @@ idna==3.10
 itsdangerous==2.2.0
 jeepney==0.9.0
 Jinja2==3.1.6
-jwt==1.3.1
 kaitaistruct==0.10
 ldap3==2.9.1
 loguru==0.7.2
@@ -57,6 +56,7 @@ pyasn1_modules==0.4.1
 pycparser==2.22
 pycryptodomex==3.23.0
 pydivert==2.1.0
+PyJWT==2.10.1
 pylsqpack==0.3.22
 pyOpenSSL==25.0.0
 pyparsing==3.2.1
