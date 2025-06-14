@@ -9,11 +9,13 @@ def scan_domain():
     data = request.get_json()
     domain = data.get('domain')
     attacks = data.get('attacks', [])
+    upload_endpoint = data.get('upload_endpoint')
+    vuln_endpoint = data.get('vuln_endpoint')
 
     if not domain or not attacks:
         return jsonify({'error': 'Missing domain or attacks'}), 400
 
-    results = DomainService.scan_domain(domain, attacks)
+    results = DomainService.scan_domain(domain, attacks, vuln_endpoint, upload_endpoint)
     return jsonify(results), 200
 
 # GET /api/attacks - Get all supported attack types

@@ -1,3 +1,5 @@
+from app.services.path_traversal import check_path_traversal
+import json 
 import requests
 import pickle
 import base64
@@ -17,6 +19,7 @@ class DomainService:
     supported_attacks = {
         "Cross-Site Scripting": "Cross-Site Scripting",
         "sql_injection": "SQL Injection",
+        "path_traversal": "Path Traversal",
         "csrf":"CSRF",
         "path_traversal":"Path Traversal",
         "insecure_deserialization":"Insecure Deserialization",
@@ -28,7 +31,7 @@ class DomainService:
     }
 
     @staticmethod
-    def scan_domain(domain, attacks, upload_endpoint):
+    def scan_domain(domain, attacks, vuln_endpoint, upload_endpoint):
         results = {}
 
         for attack in attacks:
@@ -52,8 +55,15 @@ class DomainService:
             elif attack == "file_upload":
                 results['file_upload'] = check_file_upload(domain, upload_endpoint)   
             # Add more attack types here
+            elif attack == "path_traversal":
+                results['path_traversal'] = check_path_traversal(domain, vuln_endpoint)
             else:
                 results[attack] = "Unknown attack type"
+
+            for key, value in results.items():
+                print(f"{key} result:")
+                print(json.dumps(value, indent=4))  # nicely formatted
+                print()  
 
 
         numOfvul = len(results)
