@@ -1,4 +1,5 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_from_directory
+import os
 from app.services.domain_service import DomainService
 
 domain_bp = Blueprint('domain', __name__)
@@ -24,6 +25,21 @@ def get_supported_attacks():
     attacks = DomainService.get_supported_attacks()
     return jsonify({"attacks": attacks}), 200
 
+
+# GET /api/report/<domain> - Get PDF report for scanned domain
+@domain_bp.route('/report/<path:domain>', methods=['GET'])
+def get_report_pdf(domain):
+    try:
+        pdf_url = DomainService.generate_pdf_report(domain)
+        return jsonify({"pdf_url": pdf_url}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# GET /api/download/<filename> - Download PDF file
+@domain_bp.route('/download/<filename>', methods=['GET'])
+def download_pdf(filename):
+    reports_dir = os.path.join(os.getcwd(), 'static', 'reports')
+    return send_from_directory(reports_dir, filename)
 # POST /api/jwt-test - Direct JWT vulnerability testing endpoint
 @domain_bp.route('/jwt-test', methods=['POST'])
 def test_jwt_vulnerabilities():
