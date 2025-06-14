@@ -17,13 +17,11 @@ class DomainService:
     supported_attacks = {
         "Cross-Site Scripting": "Cross-Site Scripting",
         "sql_injection": "SQL Injection",
-        "insecure_deserialization": "Insecure Deserialization",
         "csrf":"CSRF",
         "path_traversal":"Path Traversal",
         "insecure_deserialization":"Insecure Deserialization",
         "command_injection":"Command Injection",
         "jwt":"JWT Manipulation",
-        "file_upload":"File Upload",
         "ddos":"DDoS Attacks",
         "file_upload": "File Upload",
         # Add more attack types here
@@ -39,8 +37,6 @@ class DomainService:
                 results['Cross-Site Scripting'] = DomainService.check_xss(domain)
             elif attack == "sql_injection":
                 results['sql_injection'] = DomainService.check_sql_injection(domain)
-            elif attack == "insecure_deserialization":
-                results['insecure_deserialization'] = DomainService.check_insecure_deserialization(domain)
             elif attack == "csrf":
                 results['csrf'] = DomainService.check_csrf(domain)            
             elif attack == "path_traversal":
@@ -51,8 +47,6 @@ class DomainService:
                 results['command_injection'] = DomainService.check_command_injection(domain)            
             elif attack == "jwt":
                 results['jwt'] = DomainService.check_jwt(domain)            
-            elif attack == "file_upload":
-                results['file_upload'] = DomainService.check_file_upload(domain)            
             elif attack == "ddos":
                 results['ddos'] = DomainService.check_ddos(domain)           
             elif attack == "file_upload":
@@ -153,11 +147,6 @@ class DomainService:
     def check_path_traversal(domain):
         # Mock logic for path traversal vulnerability
         return "Potential path traversal vulnerability found"
-    
-    @staticmethod
-    def check_insecure_deserialization(domain):
-        # Mock logic for insecure deserialization vulnerability
-        return "Potential insecure deserialization vulnerability found"
     
     @staticmethod
     def check_command_injection(domain):
