@@ -19,7 +19,7 @@ class DomainService:
         "command_injection":"Command Injection",
         "jwt":"JWT Manipulation",
         "file_upload":"File Upload",
-        "ddos":"DDoS Attacks"
+        "ddos":"DDoS Attacks",
         "file_upload": "File Upload",
         # Add more attack types here
     }
@@ -47,8 +47,7 @@ class DomainService:
             elif attack == "file_upload":
                 results['file_upload'] = DomainService.check_file_upload(domain)            
             elif attack == "ddos":
-                results['ddos'] = DomainService.check_ddos(domain)            
-            else:            
+                results['ddos'] = DomainService.check_ddos(domain)           
             elif attack == "file_upload":
                 results['file_upload'] = check_file_upload(domain, upload_endpoint)   
             # Add more attack types here
