@@ -1,0 +1,26 @@
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# Ignore Go cache and binaries
+*.exe
+*.out
+*.test
+
+# Ignore virtual environments
+venv/
+
+# Ignore Git metadata
+.git/
+.gitignore
+
+node_modules/
+npm-debug.log
+
+# IDE/editor settings
+.vscode/
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db

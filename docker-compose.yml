@@ -1,0 +1,14 @@
+services:
+  flask-server:
+    build:
+      context: .
+      dockerfile: flask-server/Dockerfile
+    ports:
+      - "5001:5001"
+
+  go-server:
+    build:
+      context: .
+      dockerfile: go-server/Dockerfile
+    ports:
+      - "8080:8080"
