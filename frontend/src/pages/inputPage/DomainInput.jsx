@@ -54,11 +54,9 @@ const DomainInput = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-<<<<<<< HEAD
-      const response = await axios.post("/api/scan", {
-=======
+
       await axios.post(backendUrl + "/api/scan", {
->>>>>>> origin/Report-Generate
+        origin:Report-Generate,
         domain: domainUrl,
         attacks: attack.map((a) => a.value),
       });
