@@ -7,7 +7,7 @@ const ReportPage = () => {
     const {domainUrl} = useParams()
     const url = decodeURIComponent(domainUrl)
     const [pdfUrl, setPdf] = useState(null)
-    const backendUrl = import.meta.env.VITE_BACKEND_URL
+    const backendUrl = "http://127.0.0.1:5001"
 
     useEffect(() => {
         const fetchReport = async () => {

@@ -9,28 +9,26 @@ const DomainInput = () => {
   const [domainUrl, setUrl] = useState("");
   const [attack, setAttack] = useState([]);
   const [attackOptions, setAttackOptions] = useState([]);
-  const backendUrl = import.meta.env.VITE_BACKEND_URL
+  const backendUrl = "http://127.0.0.1:5001";
 
   useEffect(() => {
     const fetchAttacks = async () => {
       try {
         const response = await axios.get(backendUrl + "/api/attacks");
-        console.log(response);
-        
+        console.log("Fetched attacks:", response.data);
+
         const attackObj = response.data.attacks;
         if (!attackObj) {
-         console.error("No attacks data found in response");
-         return;  
+          console.error("No attacks data found in response");
+          return;
         }
-        const availAttacks = Object.values(attackObj)
 
-        const attacks = availAttacks.map((option) => ({
-          value: option,
-          label: option,
+        const attacks = Object.entries(attackObj).map(([key, label]) => ({
+          value: key,   // This will be sent to backend
+          label: label  // This is shown in the dropdown
         }));
 
         attacks.push({ value: "All", label: "All" });
-
         setAttackOptions(attacks);
       } catch (error) {
         console.error("Error fetching attack types:", error);
@@ -45,7 +43,8 @@ const DomainInput = () => {
 
     const isAll = selection.find((opt) => opt.value === "All");
     if (isAll) {
-      setAttack(isAll);
+      const allAttacks = attackOptions.filter((opt) => opt.value !== "All");
+      setAttack(allAttacks);
     } else {
       setAttack(selection);
     }
@@ -54,13 +53,24 @@ const DomainInput = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-
-      await axios.post(backendUrl + "/api/scan", {
-        origin:Report-Generate,
+      const payload = {
+        origin: "Report-Generate",
         domain: domainUrl,
         attacks: attack.map((a) => a.value),
-      });
-      console.log(response);
+        upload_endpoint: "/upload",           
+        vuln_endpoint: "/vulnerable"   
+      };
+      console.log("Sending to backend:", payload);
+
+      const response = await axios.post(
+        backendUrl + "/api/scan",
+        payload,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      console.log("Scan response:", response.data);
       navigate(`/report/${encodeURIComponent(domainUrl)}`);
     } catch (error) {
       console.error("Error occurred while scanning", error);

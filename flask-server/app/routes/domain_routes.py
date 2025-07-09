@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, send_from_directory
-import os
+import os, re
 from app.services.domain_service import DomainService
 
 domain_bp = Blueprint('domain', __name__)
@@ -8,10 +8,13 @@ domain_bp = Blueprint('domain', __name__)
 @domain_bp.route('/scan', methods=['POST'])
 def scan_domain():
     data = request.get_json()
+    print(data)
     domain = data.get('domain')
+    print("domain:", domain)
     attacks = data.get('attacks', [])
-    upload_endpoint = data.get('upload_endpoint')
-    vuln_endpoint = data.get('vuln_endpoint')
+    print("attacks:", attacks)
+    upload_endpoint = data.get('upload_endpoint') or '/upload'  
+    vuln_endpoint = data.get('vuln_endpoint') or '/vulnerable'
 
     if not domain or not attacks:
         return jsonify({'error': 'Missing domain or attacks'}), 400
@@ -26,11 +29,16 @@ def get_supported_attacks():
     return jsonify({"attacks": attacks}), 200
 
 
+def sanitize_domain(domain):
+    # Remove scheme (http/https) and replace unsupported filename characters
+    domain = domain.replace("https://", "").replace("http://", "")
+    return re.sub(r'[^a-zA-Z0-9.-]', '_', domain)  # replace anything not allowed in filenames
+
 # GET /api/report/<domain> - Get PDF report for scanned domain
 @domain_bp.route('/report/<path:domain>', methods=['GET'])
 def get_report_pdf(domain):
     try:
-        pdf_url = DomainService.generate_pdf_report(domain)
+        pdf_url = DomainService.generate_pdf_report(sanitize_domain(domain))
         return jsonify({"pdf_url": pdf_url}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -40,6 +48,7 @@ def get_report_pdf(domain):
 def download_pdf(filename):
     reports_dir = os.path.join(os.getcwd(), 'static', 'reports')
     return send_from_directory(reports_dir, filename)
+
 # POST /api/jwt-test - Direct JWT vulnerability testing endpoint
 @domain_bp.route('/jwt-test', methods=['POST'])
 def test_jwt_vulnerabilities():

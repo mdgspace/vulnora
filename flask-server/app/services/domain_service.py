@@ -49,7 +49,7 @@ class DomainService:
         "csrf":"CSRF",
         "path_traversal":"Path Traversal",
         "insecure_deserialization":"Insecure Deserialization",
-        "command_injection":"Command Injection",
+        #"command_injection":"Command Injection",
         "jwt":"JWT Manipulation",
         "ddos":"DDoS Attacks",
         "file_upload": "File Upload",
