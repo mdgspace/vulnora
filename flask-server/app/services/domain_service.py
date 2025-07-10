@@ -361,59 +361,65 @@ class DomainService:
     @classmethod
     def get_supported_attacks(cls):
         return cls.supported_attacks
-
+    
     @staticmethod
     def generate_pdf_report(domain):
-        # Get cached scan results
         scan_data = DomainService.scan_results_cache.get(domain)
         if not scan_data:
             raise Exception("No scan data found for this domain")
-
-        # Create PDF directory if it doesn't exist
         pdf_dir = "static/reports"
         os.makedirs(pdf_dir, exist_ok=True)
-        
-        # Generate PDF filename
+    
+    # Generate PDF filename
         safe_domain = domain.replace('/', '_').replace(':', '_')
         pdf_filename = f"{safe_domain}_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
         pdf_path = os.path.join(pdf_dir, pdf_filename)
-        
-        # Create PDF
+    
+    # Create PDF
         doc = SimpleDocTemplate(pdf_path, pagesize=letter)
         styles = getSampleStyleSheet()
         story = []
-        
-        # Title
+    
+    # Title
         title_style = ParagraphStyle(
-            'CustomTitle',
-            parent=styles['Heading1'],
-            fontSize=24,
-            spaceAfter=30,
-            textColor=colors.darkblue
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=24,
+        spaceAfter=30,
+        textColor=colors.darkblue
         )
         story.append(Paragraph("Vulnora Security Report", title_style))
         story.append(Spacer(1, 20))
-        
-        # Domain info
+    
+    # Domain info
         story.append(Paragraph(f"<b>Domain:</b> {scan_data['domain']}", styles['Normal']))
         story.append(Paragraph(f"<b>Scan Date:</b> {scan_data['timestamp']}", styles['Normal']))
         story.append(Spacer(1, 20))
-        
-        # Results section
+    
+    # Results section
         story.append(Paragraph("Vulnerability Scan Results", styles['Heading2']))
         story.append(Spacer(1, 12))
-        
+
         for attack_type, result in scan_data['results'].items():
             attack_name = DomainService.supported_attacks.get(attack_type, attack_type.replace('_', ' ').title())
             story.append(Paragraph(f"<b>{attack_name}:</b>", styles['Heading3']))
-            story.append(Paragraph(result, styles['Normal']))
-            story.append(Spacer(1, 12))
-        
-        doc.build(story)
-        
-        # Return the API download URL
-        return f"http://localhost:5001/api/download/{pdf_filename}"
 
+    # Convert result to string safely
+            if isinstance(result, dict) or isinstance(result, list):
+                from html import escape
+                import json
+                result_str = json.dumps(result, indent=2)
+                result_str = escape(result_str).replace('\n', '<br/>').replace(' ', '&nbsp;')
+            else:
+                result_str = str(result)
+
+            story.append(Paragraph(result_str, styles['Normal']))
+            story.append(Spacer(1, 12))
+    
+        doc.build(story)
+
+    # Return the API download URL
+        return f"http://localhost:5001/api/download/{pdf_filename}"
 
 class JWTVulnerabilityTester:
     def __init__(self):
