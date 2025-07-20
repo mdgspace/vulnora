@@ -138,3 +138,54 @@ func loginHandler(c *gin.Context) {
 		Token: token,
 	})
 }
+
+func getReportsHandler(c *gin.Context) {	
+	userID := c.GetString("userID")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 25*time.Second)
+	defer cancel()
+
+	var reports []Report
+	filter := bson.M{"user_id": userID}
+	cursor, err := reportsColl.Find(ctx, filter)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			c.JSON(http.StatusNotFound, ErrorResponse{
+				Error:   "no_report_found",
+				Message: "No report found",
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, ErrorResponse{
+			Error:   "database_error",
+			Message: "Failed to fetch user reports",
+		})
+		return
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var report Report
+		if err := cursor.Decode(&report); err != nil {
+			c.JSON(http.StatusInternalServerError, ErrorResponse{
+				Error:   "database_error",
+				Message: "Failed to decode report",
+			})
+			return
+		}
+		reports = append(reports, report)
+	}
+
+	if err := cursor.Err(); err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse{
+			Error:   "database_error",
+			Message: "Failed to fetch user reports",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, SuccessResponse{
+		Message: "Reports fetched successfully",
+		Data:    reports,
+	})
+}

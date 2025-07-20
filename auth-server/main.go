@@ -18,6 +18,7 @@ var (
 	mongo_client *mongo.Client
 	db           *mongo.Database
 	usersColl    *mongo.Collection
+	reportsColl  *mongo.Collection
 )
 
 func main() {
@@ -58,6 +59,16 @@ func main() {
 			})
 		})
 
+		// Report Routes
+		reports := api.Group("/reports")
+		{
+			reports.GET("/", authMiddleware(), getReportsHandler)
+			// reports.GET("/:id", getReportHandler) //TODO
+			// reports.POST("/", createReportHandler) //TODO
+			// reports.PUT("/:id", updateReportHandler) //TODO
+			// reports.DELETE("/:id", deleteReportHandler) //TODO
+		}
+
 		// Auth Routes
 		auth := api.Group("/auth")
 		{
@@ -93,6 +104,7 @@ func conn_DB() error {
 
 	db = mongo_client.Database(dbName)
 	usersColl = db.Collection("auth")
+	reportsColl = db.Collection("reports")
 
 	log.Println("Successfully connected to MongoDB")
 	return nil

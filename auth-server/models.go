@@ -17,6 +17,18 @@ type User struct {
 	UpdatedAt time.Time          `bson:"updated_at" json:"updatedAt"`
 }
 
+// Report Model
+type Report struct {
+	ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	UserID    string             `bson:"user_id" json:"userId"`
+	Title     string             `bson:"title" json:"title"`
+	Website	  string             `bson:"website" json:"website"`
+	Vulns	  []string           `bson:"vulns" json:"vulns"`
+	Report	  string             `bson:"report" json:"report"`
+	CreatedAt time.Time          `bson:"created_at" json:"createdAt"`
+	UpdatedAt time.Time          `bson:"updated_at" json:"updatedAt"`
+}
+
 // SignUp Request Model
 type SignupRequest struct {
 	Email     string `json:"email" binding:"required,email"`
