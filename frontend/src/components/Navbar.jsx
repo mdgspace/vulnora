@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from "react-router-dom";
-import api from "../components/api";
-import { Shield, Home, History, Info, Mail, UserCircle, LogOut, X } from 'lucide-react';
+import { Link, useNavigate } from "react-router-dom";
+import api from "../components/api";LayoutDashboard
+import { Shield, Home, History, Info, Mail, UserCircle, LogOut, X, LayoutDashboard } from 'lucide-react';
 import { handleError } from './utils';
 
 // The Navbar component is designed to be self-contained and reusable.
@@ -43,21 +43,23 @@ const Navbar = () => {
           VULN<span className="text-green-400">ORA</span>
         </a>
 
-        {/* TODO: Update these with navigate() links */}
         {/* Navigation Links */}
         <div className="flex items-center space-x-6">
-          <a href="#" className="flex items-center text-gray-400 hover:text-green-400 transition-colors">
+          <Link to="/" className="flex items-center text-gray-400 hover:text-green-400 transition-colors">
             <Home className="w-5 h-5 mr-1" /> Home
-          </a>
-          <a href="#" className="flex items-center text-gray-400 hover:text-green-400 transition-colors">
+          </Link>
+          <Link to="/home" className="flex items-center text-gray-400 hover:text-green-400 transition-colors">
+            <LayoutDashboard className="w-5 h-5 mr-1" /> Dashboard
+          </Link>
+          <Link to="/history" className="flex items-center text-gray-400 hover:text-green-400 transition-colors">
             <History className="w-5 h-5 mr-1" /> History
-          </a>
-          <a href="#" className="flex items-center text-gray-400 hover:text-green-400 transition-colors">
+          </Link>
+          <Link to="/about" className="flex items-center text-gray-400 hover:text-green-400 transition-colors">
             <Info className="w-5 h-5 mr-1" /> About
-          </a>
-          <a href="#" className="flex items-center text-gray-400 hover:text-green-400 transition-colors">
+          </Link>
+          <Link to="/contact" className="flex items-center text-gray-400 hover:text-green-400 transition-colors">
             <Mail className="w-5 h-5 mr-1" /> Contact
-          </a>
+          </Link>
         </div>
 
         {/* User Profile Icon and Card */}
