@@ -21,9 +21,8 @@ type User struct {
 type Report struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	UserID    string             `bson:"user_id" json:"userId"`
-	Title     string             `bson:"title" json:"title"`
 	Website	  string             `bson:"website" json:"website"`
-	Vulns	  []string           `bson:"vulns" json:"vulns"`
+	Tags	  []string           `bson:"tags" json:"tags"`
 	Report	  string             `bson:"report" json:"report"`
 	CreatedAt time.Time          `bson:"created_at" json:"createdAt"`
 	UpdatedAt time.Time          `bson:"updated_at" json:"updatedAt"`

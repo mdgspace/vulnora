@@ -40,7 +40,7 @@ func main() {
 	// Initialize Gin router
 	router := gin.Default()
 
-	// Configure CORS for Flutter app
+	// Configure CORS for Client
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{clientURL}
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE"}
@@ -74,6 +74,7 @@ func main() {
 		{
 			auth.POST("/signup", signupHandler)
 			auth.POST("/login", loginHandler)
+			// TODO: /auth/user/profile
 		}
 	}
 

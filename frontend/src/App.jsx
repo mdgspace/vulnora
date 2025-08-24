@@ -1,17 +1,27 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
-import DomainInput from "./pages/inputPage/DomainInput";
-import ReportPage from "./pages/report/ReportPage";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Dashboard from "./pages/Dashboard";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
+
   return (
-    <Router>
+    <BrowserRouter>
       <Routes>
-        <Route path = "/" element = {<DomainInput/>} />
-        <Route path = "/report/:domainUrl" element = {<ReportPage/>} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route
+          path="/home"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
-    </Router>
-  )
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
