@@ -12,3 +12,5 @@ services:
       dockerfile: go-server/Dockerfile
     ports:
       - "8080:8080"
+
+   

@@ -72,10 +72,10 @@ const Signup = () => {
         return;
     }
 
-    const { confirmPassword, creds } = formData;
+    const { creds } = formData;
 
     try {
-      const res = await api.post("/api/auth/signup", creds);
+      const res = await api.post("/api/auth/signup", formData);
       console.log(res);
       if (res.status === 201) {
         console.log(res);
