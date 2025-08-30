@@ -15,6 +15,9 @@ logger = logging.getLogger(__name__)
 import threading
 
 from app.services.path_traversal import check_path_traversal
+from app.utils.call_llm import call_llm
+from app.utils.get_user import get_user
+from app.utils.reports import save_report
 # import json
 import pickle
 # import base64
@@ -111,7 +114,19 @@ class DomainService:
         # Cache the results for PDF generation
         DomainService.scan_results_cache[domain] = scan_data
         
-        return scan_data
+        llm_response = call_llm(scan_data)
+        user_id = get_user()
+        
+        report_doc = {
+            "user_id": user_id,     
+            "website": domain,
+            "tags": list(results.keys()),
+            "report": llm_response,
+            "created_at": datetime.now().timestamp()
+        }
+        
+        save_report(report_doc)
+        return {"result" :scan_data, "llm_response": llm_response}
 
     # Define methods for checking vulnerabilities over here
 

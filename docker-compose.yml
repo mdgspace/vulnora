@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: flask-server/Dockerfile
+    env_file:
+      - flask-server/.env   
     ports:
       - "5001:5001"
 

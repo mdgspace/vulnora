@@ -25,7 +25,6 @@ type Report struct {
 	Tags	  []string           `bson:"tags" json:"tags"`
 	Report	  string             `bson:"report" json:"report"`
 	CreatedAt time.Time          `bson:"created_at" json:"createdAt"`
-	UpdatedAt time.Time          `bson:"updated_at" json:"updatedAt"`
 }
 
 // SignUp Request Model
