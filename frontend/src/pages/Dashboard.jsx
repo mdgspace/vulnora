@@ -8,74 +8,18 @@ import Navbar from '../components/Navbar';
 // Define the data for different attack types.
 // This is an array of objects, which works in both JS and TS.
 const attackTypes = [
-  {
-    id: 'sql-injection',
-    name: 'SQL Injection',
-    description: 'Tests for database injection vulnerabilities',
-    icon: <Code className="w-4 h-4" />,
-    severity: 'critical'
-  },
-  {
-    id: 'xss',
-    name: 'Cross-Site Scripting (XSS)',
-    description: 'Detects script injection vulnerabilities',
-    icon: <Terminal className="w-4 h-4" />,
-    severity: 'high'
-  },
-  {
-    id: 'csrf',
-    name: 'Cross-Site Request Forgery',
-    description: 'Checks for CSRF protection mechanisms',
-    icon: <Shield className="w-4 h-4" />,
-    severity: 'medium'
-  },
-  {
-    id: 'directory-traversal',
-    name: 'Directory Traversal',
-    description: 'Tests for unauthorized file access',
-    icon: <FileX className="w-4 h-4" />,
-    severity: 'high'
-  },
-  {
-    id: 'insecure-deserialization',
-    name: 'Insecure Deserialization',
-    description: 'Detects vulnerabilities in data deserialization',
-    icon: <Settings className="w-4 h-4" />,
-    severity: 'critical'
-  },
-  {
-    id: 'cmd-injection',
-    name: 'Command Injection',
-    description: 'Tests for OS command injection vulnerabilities',
-    icon: <Terminal className="w-4 h-4" />,
-    severity: 'critical'
-  },
-  {
-    id: 'jwt-manipulation',
-    name: 'JWT Manipulation',
-    description: 'Checks for JSON Web Token vulnerabilities',
-    icon: <Key className="w-4 h-4" />,
-    severity: 'high'
-  },
-  {
-    id: 'file-upload',
-    name: 'File Upload Vulnerabilities',
-    description: 'Tests for malicious file upload vulnerabilities',
-    icon: <Upload className="w-4 h-4" />,
-    severity: 'high'
-  },
-  {
-    id: 'ddos',
-    name: 'DDoS Simulation',
-    description: 'Tests for resilience against denial-of-service attacks',
-    icon: <Bomb className="w-4 h-4" />,
-    severity: 'medium'
-  }
+  { id: 'sql-injection', name: 'SQL Injection', description: 'Tests for database injection vulnerabilities', icon: <Code className="w-4 h-4" />, severity: 'critical' },
+  { id: 'xss', name: 'Cross-Site Scripting (XSS)', description: 'Detects script injection vulnerabilities', icon: <Terminal className="w-4 h-4" />, severity: 'high' },
+  { id: 'csrf', name: 'Cross-Site Request Forgery', description: 'Checks for CSRF protection mechanisms', icon: <Shield className="w-4 h-4" />, severity: 'medium' },
+  { id: 'directory-traversal', name: 'Directory Traversal', description: 'Tests for unauthorized file access', icon: <FileX className="w-4 h-4" />, severity: 'high' },
+  { id: 'insecure-deserialization', name: 'Insecure Deserialization', description: 'Detects vulnerabilities in data deserialization', icon: <Settings className="w-4 h-4" />, severity: 'critical' },
+  { id: 'cmd-injection', name: 'Command Injection', description: 'Tests for OS command injection vulnerabilities', icon: <Terminal className="w-4 h-4" />, severity: 'critical' },
+  { id: 'jwt-manipulation', name: 'JWT Manipulation', description: 'Checks for JSON Web Token vulnerabilities', icon: <Key className="w-4 h-4" />, severity: 'high' },
+  { id: 'file-upload', name: 'File Upload Vulnerabilities', description: 'Tests for malicious file upload vulnerabilities', icon: <Upload className="w-4 h-4" />, severity: 'high' },
+  { id: 'ddos', name: 'DDoS Simulation', description: 'Tests for resilience against denial-of-service attacks', icon: <Bomb className="w-4 h-4" />, severity: 'medium' }
 ];
 
-// The main App component
 const Dashboard = () => {
-  // State variables to manage the application's UI and data.
   const [domain, setDomain] = useState('');
   const [selectedAttacks, setSelectedAttacks] = useState([]);
   const [isScanning, setIsScanning] = useState(false);
@@ -83,49 +27,63 @@ const Dashboard = () => {
   const [scanResults, setScanResults] = useState([]);
   const [currentScan, setCurrentScan] = useState('');
 
-
-  // Function to handle toggling the selection of an attack type.
+  // Toggle attacks
   const handleAttackToggle = (attackId) => {
-    setSelectedAttacks(prev =>
-      prev.includes(attackId)
-        ? prev.filter(id => id !== attackId)
-        : [...prev, attackId]
+    setSelectedAttacks((prev) =>
+      prev.includes(attackId) ? prev.filter((id) => id !== attackId) : [...prev, attackId]
     );
   };
 
-  // Function to select or deselect all attack types.
   const selectAllAttacks = () => {
     if (selectedAttacks.length === attackTypes.length) {
       setSelectedAttacks([]);
     } else {
-      setSelectedAttacks(attackTypes.map(attack => attack.id));
+      setSelectedAttacks(attackTypes.map((a) => a.id));
     }
   };
 
-  // Asynchronous function to start the simulated scan.
+  // 🔹 Start scan (real API call + simulated results)
   const startScan = async () => {
-    // Prevent scan from starting if no domain is entered or no attacks are selected.
     if (!domain || selectedAttacks.length === 0) return;
 
-    // Reset state and start scanning process.
     setIsScanning(true);
     setScanProgress(0);
     setScanResults([]);
 
-    // Loop through each selected attack type to simulate a scan.
+    // 🔹 Fire backend API call (runs in background)
+    try {
+      const token = localStorage.getItem('ACCESS_TOKEN');
+      console.log("[LOCALSTORAGE TOKEN]", token);
+      const res = await fetch('http://localhost:5001/api/scan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ domain, attacks: selectedAttacks })
+      });
+
+      if (!res.ok) {
+        console.error('[SCAN API ERROR]', await res.json());
+      } else {
+        const data = await res.json();
+        console.log('[SCAN API RESPONSE]', data);
+      }
+    } catch (err) {
+      console.error('API call failed:', err);
+    }
+
+    // 🔹 Simulate scanning & fake results
     for (let i = 0; i < selectedAttacks.length; i++) {
       const attackId = selectedAttacks[i];
-      const attack = attackTypes.find(a => a.id === attackId);
+      const attack = attackTypes.find((a) => a.id === attackId);
       setCurrentScan(attack?.name || '');
 
-      // Simulate a delay for the scan process.
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      // Randomly generate a result status.
       const statuses = ['vulnerable', 'secure', 'warning'];
       const status = statuses[Math.floor(Math.random() * statuses.length)];
 
-      // Create a result object and add it to the scanResults state.
       const result = {
         attackType: attack?.name || '',
         status,
@@ -133,16 +91,15 @@ const Dashboard = () => {
         recommendation: status === 'vulnerable' ? getRecommendation(attackId) : undefined
       };
 
-      setScanResults(prev => [...prev, result]);
+      setScanResults((prev) => [...prev, result]);
       setScanProgress(((i + 1) / selectedAttacks.length) * 100);
     }
 
-    // End the scanning process and clear the current scan name.
     setIsScanning(false);
     setCurrentScan('');
   };
 
-  // TODO: Replace with API call
+  // Dummy details for UI
   const getResultDetails = (attackId, status) => {
     const details = {
       'sql-injection': {
@@ -150,12 +107,12 @@ const Dashboard = () => {
         secure: 'No SQL injection vulnerabilities found',
         warning: 'Potential SQL injection risk detected'
       },
-      'xss': {
+      xss: {
         vulnerable: 'Stored XSS vulnerability found in comment section',
         secure: 'No XSS vulnerabilities detected',
         warning: 'Input validation could be improved'
       },
-      'csrf': {
+      csrf: {
         vulnerable: 'CSRF tokens missing on critical forms',
         secure: 'CSRF protection properly implemented',
         warning: 'CSRF protection partially implemented'
@@ -173,7 +130,7 @@ const Dashboard = () => {
       'cmd-injection': {
         vulnerable: 'OS command injection vulnerability detected',
         secure: 'No command injection vulnerabilities found',
-        warning: 'Check for proper input sanitization on system calls'
+        warning: 'Check input sanitization on system calls'
       },
       'jwt-manipulation': {
         vulnerable: 'JWT token manipulation detected',
@@ -185,35 +142,30 @@ const Dashboard = () => {
         secure: 'File uploads are secure',
         warning: 'File type validation needs improvement'
       },
-      'ddos': {
+      ddos: {
         vulnerable: 'System is vulnerable to DDoS attack',
         secure: 'System is resilient to DDoS attack',
-        warning: 'Review rate limiting and other protection measures'
+        warning: 'Review rate limiting and protection measures'
       }
     };
-
-    return details[attackId]?.[status] || `${status} status detected for ${attackId}`;
+    return details[attackId]?.[status] || `${status} detected`;
   };
 
-  // TODO: Replace with LLM Recommendations
-  // Helper function to get a recommendation for a vulnerability.
   const getRecommendation = (attackId) => {
-    const recommendations = {
-      'sql-injection': 'Implement parameterized queries and input validation',
-      'xss': 'Sanitize all user inputs and implement Content Security Policy',
-      'csrf': 'Add CSRF tokens to all forms and validate on server-side',
-      'directory-traversal': 'Use strict input validation and sanitize file paths',
+    const recs = {
+      'sql-injection': 'Use parameterized queries and input validation',
+      xss: 'Sanitize inputs and add Content Security Policy',
+      csrf: 'Add CSRF tokens to all forms',
+      'directory-traversal': 'Sanitize file paths strictly',
       'insecure-deserialization': 'Avoid deserializing untrusted data',
       'cmd-injection': 'Avoid executing shell commands from user input',
-      'jwt-manipulation': 'Use strong signing keys and validate all claims',
-      'file-upload': 'Validate file types and content, and store uploads securely',
-      'ddos': 'Implement rate limiting and use a CDN with DDoS protection'
+      'jwt-manipulation': 'Use strong signing keys and validate claims',
+      'file-upload': 'Validate file types and store securely',
+      ddos: 'Implement rate limiting and use DDoS protection services'
     };
-
-    return recommendations[attackId] || 'Review and implement appropriate security measures';
+    return recs[attackId] || 'Review security measures';
   };
 
-  // Helper function to get the severity color based on the severity level.
   const getSeverityColor = (severity) => {
     switch (severity) {
       case 'critical': return 'text-red-400';
@@ -224,7 +176,6 @@ const Dashboard = () => {
     }
   };
 
-  // Helper function to get the status icon based on the status.
   const getStatusIcon = (status) => {
     switch (status) {
       case 'vulnerable': return <XCircle className="w-5 h-5 text-red-400" />;

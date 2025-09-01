@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, send_from_directory
 import os, re
 from datetime import datetime
+from app.utils.get_user import get_user
 
 from urllib.parse import unquote
 from app.services.domain_service import DomainService
@@ -23,7 +24,9 @@ def scan_domain():
 
     # Normalize domain before using as cache key
     normalized_domain = domain.strip().lower().rstrip('/')
-
+    
+    user_id = get_user()
+    print("[SCAN ROUTE] user_id =", user_id)
     # Perform scan
     results = DomainService.scan_domain(domain, attacks, vuln_endpoint, upload_endpoint)
 

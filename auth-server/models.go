@@ -3,6 +3,7 @@ package main
 import (
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -19,13 +20,14 @@ type User struct {
 
 // Report Model
 type Report struct {
-	ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	UserID    string             `bson:"user_id" json:"userId"`
-	Website	  string             `bson:"website" json:"website"`
-	Tags	  []string           `bson:"tags" json:"tags"`
-	Report	  string             `bson:"report" json:"report"`
-	CreatedAt time.Time          `bson:"created_at" json:"createdAt"`
+    ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+    UserID    string             `bson:"user_id" json:"userId"`
+    Website   string             `bson:"website" json:"website"`
+    Tags      []string           `bson:"tags" json:"tags"`
+    Report    bson.M             `bson:"report" json:"report"`   // change here
+    CreatedAt time.Time          `bson:"created_at" json:"createdAt"`
 }
+
 
 // SignUp Request Model
 type SignupRequest struct {

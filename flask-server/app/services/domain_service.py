@@ -116,6 +116,8 @@ class DomainService:
         
         llm_response = call_llm(scan_data)
         user_id = get_user()
+
+        print("[REPORT INSERT] user_id=", user_id)
         
         report_doc = {
             "user_id": user_id,     

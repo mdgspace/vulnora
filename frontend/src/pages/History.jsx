@@ -1,59 +1,53 @@
-import React from 'react';
-import Navbar from '../components/Navbar';
-import { History } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import Navbar from "../components/Navbar";
+import { History } from "lucide-react";
+import axios from "axios";
 
-// TODO: Integrate UI with the backend.. deadline: 24th Aug EOD😭
-// Dummy history data for past reports based on the new attack vectors.
-const dummyReports = [
-  {
-    id: 'rep-001',
-    website: 'cyberdynesystems.com',
-    tags: ['sqli', 'xss'],
-    report: 'A critical SQL Injection vulnerability was found in the user authentication form. Additionally, a stored Cross-Site Scripting (XSS) vulnerability was detected in the contact form, which could be used to compromise other users.',
-    createdAt: new Date('2024-08-22T10:00:00Z'),
-  },
-  {
-    id: 'rep-002',
-    website: 'skynet.ai',
-    tags: ['csrf', 'jwt-manipulation'],
-    report: 'This site is generally secure, but a medium-severity Cross-Site Request Forgery (CSRF) vulnerability was identified on the password reset form. Further analysis showed a potential for JWT (JSON Web Token) manipulation.',
-    createdAt: new Date('2024-08-20T14:30:00Z'),
-  },
-  {
-    id: 'rep-003',
-    website: 'sentinelsecurity.org',
-    tags: ['cmd-injection', 'file-upload'],
-    report: 'A high-severity Command Injection vulnerability was found, allowing remote code execution. A file upload vulnerability was also identified, which could allow an attacker to upload malicious scripts.',
-    createdAt: new Date('2024-08-18T09:15:00Z'),
-  },
-  {
-    id: 'rep-004',
-    website: 'omega-protocol.net',
-    tags: ['dir-traversal', 'insecure-deserialization'],
-    report: 'The server is vulnerable to directory traversal, allowing unauthorized access to system files. Additionally, an insecure deserialization flaw was detected, which could lead to remote code execution.',
-    createdAt: new Date('2024-08-15T18:00:00Z'),
-  },
-  {
-    id: 'rep-005',
-    website: 'defensive-measures.com',
-    tags: ['ddos', 'sqli'],
-    report: 'The website is resilient to DDoS attacks, but a low-severity SQL Injection vulnerability was found in a secondary search feature.',
-    createdAt: new Date('2024-08-14T11:45:00Z'),
-  },
-];
-
-/**
- * Renders the History page of the Vulnora application.
- * Displays a list of past security scan reports with full UI.
- * This component is self-contained and does not require a parent component for styling.
- */
 const HistoryPage = () => {
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const token = localStorage.getItem("ACCESS_TOKEN");
+        if (!token) {
+          setError("Authentication required. Please log in.");
+          setLoading(false);
+          return;
+        }
+
+        const res = await axios.get(`http://localhost:8081/api/reports/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setReports(res.data.data || []);
+      } catch (err) {
+        console.error("Failed to fetch reports:", err);
+        setError(
+          err.response?.data?.message || "Failed to load reports. Please try again."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReports();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-900 text-green-400 font-mono relative overflow-x-hidden">
       {/* Background Grid Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,65,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,65,0.03)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
 
       <Navbar />
+
       {/* Main Content Container */}
       <div className="relative z-10 container mx-auto px-6 pt-28 pb-8">
         <div className="text-center mb-12">
@@ -71,36 +65,68 @@ const HistoryPage = () => {
 
         {/* Reports List */}
         <div className="max-w-4xl mx-auto">
-          {dummyReports.length === 0 ? (
+          {loading ? (
+            <div className="text-center text-gray-500">Loading reports...</div>
+          ) : error ? (
+            <div className="text-center text-red-500">{error}</div>
+          ) : reports.length === 0 ? (
             <div className="text-center text-gray-500">No past reports found.</div>
           ) : (
             <div className="space-y-6">
-              {dummyReports.map((report) => (
+              {reports.map((report) => (
                 <div
-                  key={report.id}
+                  key={report._id}
                   className="bg-black/40 backdrop-blur-sm border border-green-400/20 rounded-lg p-6 shadow-2xl transition-transform transform hover:scale-[1.01] hover:border-green-400/50"
                 >
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h2 className="text-2xl font-bold text-white mb-1">{report.website}</h2>
+                      <h2 className="text-2xl font-bold text-white mb-1">
+                        {report.website}
+                      </h2>
                       <p className="text-sm text-gray-500">
-                        Scanned on: {report.createdAt.toLocaleDateString()} at {report.createdAt.toLocaleTimeString()}
+                        Scanned on:{" "}
+                        {new Date(report.createdAt).toLocaleDateString()} at{" "}
+                        {new Date(report.createdAt).toLocaleTimeString()}
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-2 mt-1">
-                      {report.tags.map(tag => (
+                      {report.tags?.map((tag) => (
                         <span
                           key={tag}
                           className="text-xs px-2 py-1 rounded-full font-medium text-green-400 bg-green-400/10"
                         >
-                          {tag.toUpperCase().replace('-', ' ')}
+                          {tag.toUpperCase().replace("-", " ")}
                         </span>
                       ))}
                     </div>
                   </div>
-                  <p className="text-gray-300 leading-relaxed">
-                    {report.report}
-                  </p>
+
+                  {/* Render report details safely */}
+                  <div className="text-gray-300 leading-relaxed space-y-2">
+                    {report.report?.summary && (
+                      <p>
+                        <strong>Summary:</strong> {report.report.summary}
+                      </p>
+                    )}
+
+                    {report.report?.criticality && (
+                      <p>
+                        <strong>Criticality:</strong>{" "}
+                        {typeof report.report.criticality === "string"
+                          ? report.report.criticality
+                          : JSON.stringify(report.report.criticality)}
+                      </p>
+                    )}
+
+                    {report.report?.actions && (
+                      <p>
+                        <strong>Actions:</strong>{" "}
+                        {typeof report.report.actions === "string"
+                          ? report.report.actions
+                          : JSON.stringify(report.report.actions)}
+                      </p>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

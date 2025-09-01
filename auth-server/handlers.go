@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"time"
+	"log"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -141,6 +142,7 @@ func loginHandler(c *gin.Context) {
 
 func getReportsHandler(c *gin.Context) {	
 	userID := c.GetString("userID")
+	log.Println("[DEBUG] userID from middleware:", userID)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 25*time.Second)
 	defer cancel()
@@ -167,6 +169,7 @@ func getReportsHandler(c *gin.Context) {
 	for cursor.Next(ctx) {
 		var report Report
 		if err := cursor.Decode(&report); err != nil {
+			log.Println("[ERROR] Failed to decode report:", err)
 			c.JSON(http.StatusInternalServerError, ErrorResponse{
 				Error:   "database_error",
 				Message: "Failed to decode report",
