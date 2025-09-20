@@ -20,8 +20,9 @@ const HistoryPage = () => {
           setLoading(false);
           return;
         }
-
-        const res = await axios.get(`http://localhost:8081/api/reports/`, {
+        
+        const baseURL = import.meta.env.VITE_API_URL;
+        const res = await axios.get(`${baseURL}/api/reports/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

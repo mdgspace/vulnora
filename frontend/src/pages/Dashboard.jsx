@@ -53,7 +53,7 @@ const Dashboard = () => {
     // 🔹 Fire backend API call (runs in background)
     try {
       const token = localStorage.getItem('ACCESS_TOKEN');
-      console.log("[LOCALSTORAGE TOKEN]", token);
+      // console.log("[LOCALSTORAGE TOKEN]", token);
       const res = await fetch('http://localhost:5001/api/scan', {
         method: 'POST',
         headers: {
@@ -313,21 +313,12 @@ const Dashboard = () => {
           {/* Progress Bar Section */}
           {isScanning && (
             <div className="bg-black/40 backdrop-blur-sm border border-green-400/20 rounded-lg p-6 mb-8">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-white font-semibold">Scanning Progress</span>
-                <span className="text-green-400">{Math.round(scanProgress)}%</span>
+              <div className="flex justify-center mb-8">
+                <Loader size={64} strokeWidth={1} className="animate-spin text-green-400" />
               </div>
-              <div className="w-full bg-gray-700 rounded-full h-3 mb-4">
-                <div
-                  className="bg-gradient-to-r from-green-400 to-emerald-500 h-3 rounded-full transition-all duration-300"
-                  style={{ width: `${scanProgress}%` }}
-                ></div>
+              <div className="flex justify-center mb-8">
+                Attacks are being simulated.. Analysing the response..
               </div>
-              {currentScan && (
-                <p className="text-gray-400 text-sm">
-                  Currently scanning: <span className="text-green-400">{currentScan}</span>
-                </p>
-              )}
             </div>
           )}
 

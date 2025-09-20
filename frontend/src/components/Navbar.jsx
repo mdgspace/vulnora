@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import api from "../components/api";LayoutDashboard
-import { Shield, Home, History, Info, Mail, UserCircle, LogOut, X, LayoutDashboard } from 'lucide-react';
+import { Shield, Home, History, Info, UserCircle, LogOut, X, LayoutDashboard } from 'lucide-react';
 import { handleError } from './utils';
 
 // The Navbar component is designed to be self-contained and reusable.
@@ -54,11 +54,8 @@ const Navbar = () => {
           <Link to="/history" className="flex items-center text-gray-400 hover:text-green-400 transition-colors">
             <History className="w-5 h-5 mr-1" /> History
           </Link>
-          <Link to="/about" className="flex items-center text-gray-400 hover:text-green-400 transition-colors">
+          <Link to="/#about" className="flex items-center text-gray-400 hover:text-green-400 transition-colors">
             <Info className="w-5 h-5 mr-1" /> About
-          </Link>
-          <Link to="/contact" className="flex items-center text-gray-400 hover:text-green-400 transition-colors">
-            <Mail className="w-5 h-5 mr-1" /> Contact
           </Link>
         </div>
 

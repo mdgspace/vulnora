@@ -1,12 +1,31 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Loader, UserPlus, Mail, Lock } from 'lucide-react';
 import { handleSuccess } from '../components/utils';
 import { ToastContainer } from 'react-toastify';
+import { jwtDecode } from "jwt-decode";
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../components/api';
 
 // The main App component which renders the entire signup page.
 const Signup = () => {
+  // Checks if user is already logged in.
+  const navigate = useNavigate();
+  useEffect(() => {
+      try{
+        const token = localStorage.getItem("ACCESS_TOKEN");
+        const decoded = jwtDecode(token);
+        const tokenExpiration = decoded.exp;
+        const now = Date.now() / 1000;
+        
+        if (token && tokenExpiration > now) {
+            navigate("/home");
+        }
+      } catch(err){
+        console.error(err);
+      }
+    }
+  )
+
   // State to manage the form data.
   const [formData, setFormData] = useState({
     firstName: '',
@@ -19,7 +38,6 @@ const Signup = () => {
   // State for UI feedback, like loading and messages.
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const navigate = useNavigate();
 
   // Handles changes to all form inputs using the 'name' attribute.
   const handleInputChange = (e) => {
@@ -76,9 +94,9 @@ const Signup = () => {
 
     try {
       const res = await api.post("/api/auth/signup", formData);
-      console.log(res);
+      // console.log(res);
       if (res.status === 201) {
-        console.log(res);
+        // console.log(res);
         localStorage.setItem("ACCESS_TOKEN", res.data.token);
         handleSuccess("Registration Successful!");
         setTimeout(() => {
@@ -103,7 +121,7 @@ const Signup = () => {
     setTimeout(() => {
       setLoading(false);
       setMessage('Account created successfully! Redirecting to your Dashboard...');
-      console.log(formData);
+      // console.log(formData);
     }, 0);
   };
 
