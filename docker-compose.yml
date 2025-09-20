@@ -15,4 +15,20 @@ services:
     ports:
       - "8080:8080"
 
-   
+  auth-server:
+    build:
+      context: .
+      dockerfile: auth-server/Dockerfile
+    env_file:
+      - auth-server/.env   
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    env_file:
+      - frontend/.env
+    ports:
+      - "5173:5173"
