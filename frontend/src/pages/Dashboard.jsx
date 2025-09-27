@@ -8,14 +8,14 @@ import Navbar from '../components/Navbar';
 // Define the data for different attack types.
 // This is an array of objects, which works in both JS and TS.
 const attackTypes = [
-  { id: 'sql-injection', name: 'SQL Injection', description: 'Tests for database injection vulnerabilities', icon: <Code className="w-4 h-4" />, severity: 'critical' },
-  { id: 'xss', name: 'Cross-Site Scripting (XSS)', description: 'Detects script injection vulnerabilities', icon: <Terminal className="w-4 h-4" />, severity: 'high' },
+  { id: 'sql_injection', name: 'SQL Injection', description: 'Tests for database injection vulnerabilities', icon: <Code className="w-4 h-4" />, severity: 'critical' },
+  { id: 'Cross-Site Scripting', name: 'Cross-Site Scripting (XSS)', description: 'Detects script injection vulnerabilities', icon: <Terminal className="w-4 h-4" />, severity: 'high' },
   { id: 'csrf', name: 'Cross-Site Request Forgery', description: 'Checks for CSRF protection mechanisms', icon: <Shield className="w-4 h-4" />, severity: 'medium' },
-  { id: 'directory-traversal', name: 'Directory Traversal', description: 'Tests for unauthorized file access', icon: <FileX className="w-4 h-4" />, severity: 'high' },
-  { id: 'insecure-deserialization', name: 'Insecure Deserialization', description: 'Detects vulnerabilities in data deserialization', icon: <Settings className="w-4 h-4" />, severity: 'critical' },
+  { id: 'path_traversal', name: 'Directory Traversal', description: 'Tests for unauthorized file access', icon: <FileX className="w-4 h-4" />, severity: 'high' },
+  { id: 'insecure_deserialization', name: 'Insecure Deserialization', description: 'Detects vulnerabilities in data deserialization', icon: <Settings className="w-4 h-4" />, severity: 'critical' },
   { id: 'cmd-injection', name: 'Command Injection', description: 'Tests for OS command injection vulnerabilities', icon: <Terminal className="w-4 h-4" />, severity: 'critical' },
-  { id: 'jwt-manipulation', name: 'JWT Manipulation', description: 'Checks for JSON Web Token vulnerabilities', icon: <Key className="w-4 h-4" />, severity: 'high' },
-  { id: 'file-upload', name: 'File Upload Vulnerabilities', description: 'Tests for malicious file upload vulnerabilities', icon: <Upload className="w-4 h-4" />, severity: 'high' },
+  { id: 'jwt', name: 'JWT Manipulation', description: 'Checks for JSON Web Token vulnerabilities', icon: <Key className="w-4 h-4" />, severity: 'high' },
+  { id: 'file_upload', name: 'File Upload Vulnerabilities', description: 'Tests for malicious file upload vulnerabilities', icon: <Upload className="w-4 h-4" />, severity: 'high' },
   { id: 'ddos', name: 'DDoS Simulation', description: 'Tests for resilience against denial-of-service attacks', icon: <Bomb className="w-4 h-4" />, severity: 'medium' }
 ];
 
