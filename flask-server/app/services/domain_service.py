@@ -44,12 +44,12 @@ from app.services.cmd_injection import check_cmd_injection
 class DomainService:
 
     supported_attacks = {
-        "Cross-Site Scripting": "Cross-Site Scripting",
+        #"Cross-Site Scripting": "Cross-Site Scripting",
         "sql_injection": "SQL Injection",
         "cmd_injection": "Command Injection",
         "jwt_vulnerabilities": "JWT Vulnerabilities",
         "path_traversal": "Path Traversal",
-        "csrf":"CSRF",
+        #"csrf":"CSRF",
         "path_traversal":"Path Traversal",
         "insecure_deserialization":"Insecure Deserialization",
         #"command_injection":"Command Injection",
@@ -65,6 +65,37 @@ class DomainService:
     scan_results_cache = {}
 
     @staticmethod
+    def _trim_logs_for_llm(attack_type, raw_logs, max_non_vuln=3, max_chars=500):
+        def trunc(x):
+            return x if not isinstance(x, str) or len(x) <= max_chars else x[:max_chars] + "...[truncated]"
+
+        def summarise(item):
+            if isinstance(item, dict):
+                return {k: summarise(v) for k, v in list(item.items())[:15]}
+            if isinstance(item, list):
+                return [summarise(x) for x in item[:max_non_vuln]]
+            return trunc(item)
+
+        if isinstance(raw_logs, dict) and "detailed_logs" in raw_logs:
+            logs = raw_logs["detailed_logs"]
+            vuln = [summarise(l) for l in logs if isinstance(l, dict) and l.get("vulnerable")]
+            nonv = [summarise(l) for l in logs if not (isinstance(l, dict) and l.get("vulnerable"))][:max_non_vuln]
+            out = {k: summarise(v) for k, v in raw_logs.items() if k != "detailed_logs"}
+            out["detailed_logs_trimmed"] = vuln + nonv
+            out["detailed_logs_count"] = len(logs)
+            return out
+
+        if isinstance(raw_logs, dict):
+            return {k: summarise(v) for k, v in list(raw_logs.items())[:15]}
+
+    # Handle list
+        if isinstance(raw_logs, list):
+            return [summarise(x) for x in raw_logs[:max_non_vuln]]
+        
+        return trunc(str(raw_logs))
+
+
+    @staticmethod
     def scan_domain(domain, attacks, vuln_endpoint, upload_endpoint):
         results = {}
 
@@ -75,44 +106,53 @@ class DomainService:
             elif attack == "sql_injection":
                 results['sql_injection'] = DomainService.check_sql_injection(domain)
             elif attack == "cmd_injection":
-                results['cmd_injection']  = check_cmd_injection(domain)  
+                results['cmd_injection'] = check_cmd_injection(domain) 
             elif attack == "jwt_vulnerabilities":
                 results['jwt_vulnerabilities'] = DomainService.check_jwt_vulnerabilities(domain)
             elif attack == "csrf":
-                results['csrf'] = DomainService.check_csrf(domain)            
+                results['csrf'] = DomainService.check_csrf(domain) 
             # elif attack == "path_traversal":
-            #     results['path_traversal'] = DomainService.check_path_traversal(domain)            
+            #     results['path_traversal'] = DomainService.check_path_traversal(domain) 
             elif attack == "insecure_deserialization":
-                results['insecure_deserialization'] = DomainService.check_insecure_deserialization(domain)            
+                results['insecure_deserialization'] = DomainService.check_insecure_deserialization(domain) 
             # elif attack == "command_injection":
-            #     results['command_injection'] = DomainService.check_command_injection(domain)            
+            #     results['command_injection'] = DomainService.check_command_injection(domain) 
             elif attack == "jwt":
-                results['jwt'] = DomainService.check_jwt(domain)            
+                results['jwt'] = DomainService.check_jwt(domain) 
             elif attack == "ddos":
-                results['ddos'] = DomainService.check_ddos(domain)           
+                results['ddos'] = DomainService.check_ddos(domain) 
             elif attack == "file_upload":
                 results['file_upload'] = check_file_upload(domain, upload_endpoint)
             elif attack == "path_traversal":
-                results['path_traversal'] = check_path_traversal(domain, vuln_endpoint)   
+                results['path_traversal'] = check_path_traversal(domain, vuln_endpoint) 
             # Add more attack types here
             else:
                 results[attack] = "Unknown attack type"
 
             for key, value in results.items():
                 print(f"{key} result:")
-                print(json.dumps(value, indent=4))  # nicely formatted
-                print()  
+                print(json.dumps(value, indent=4))
+                print() 
+
+
+        llm_results = json.loads(json.dumps(results, default=str))
+
+        for attack_type in llm_results.keys():
+            llm_results[attack_type] = DomainService._trim_logs_for_llm(attack_type, llm_results[attack_type])
 
 
         numOfvul = len(results)
-        scan_data = {
-            "domain": domain, 
-            "results": results,
-            "timestamp": datetime.now().isoformat()
+        DomainService.scan_results_cache[domain] = {
+             "domain": domain, 
+             "results": results, # ORIGINAL, untrimmed results
+             "timestamp": datetime.now().isoformat()
         }
         
-        # Cache the results for PDF generation
-        DomainService.scan_results_cache[domain] = scan_data
+        scan_data = {
+            "domain": domain, 
+            "results": llm_results, 
+            "timestamp": datetime.now().isoformat()
+        }
         
         llm_response = call_llm(scan_data)
         user_id = get_user()
@@ -120,7 +160,7 @@ class DomainService:
         print("[REPORT INSERT] user_id=", user_id)
         
         report_doc = {
-            "user_id": user_id,     
+            "user_id": user_id, 
             "website": domain,
             "tags": list(results.keys()),
             "report": llm_response,
@@ -128,9 +168,8 @@ class DomainService:
         }
         
         save_report(report_doc)
-        return {"result" :scan_data, "llm_response": llm_response}
+        return {"result" :DomainService.scan_results_cache[domain], "llm_response": llm_response}
 
-    # Define methods for checking vulnerabilities over here
 
     @staticmethod
     def check_xss(domain):
@@ -142,11 +181,11 @@ class DomainService:
                     'wapiti',
                     '-u', domain, #used to specify domain on which attack is being done, taken as parameter
                     '--module', 'xss', #used to specify which type of attack to be done
-                    '--level', '2',     #used to specify level of attack              
-                    '-f', 'json',       
-                    '-o', report_path,  #used to specify path at which report is created
-                    '-v', '2'           #used to specify verbose of the attack (level of detail)
-                    #higher levels of verbose and level will slow down o/p of subprocess                   
+                    '--level', '2', #used to specify level of attack              
+                    '-f', 'json', 
+                    '-o', report_path, #used to specify path at which report is created
+                    '-v', '2' #used to specify verbose of the attack (level of detail)
+                    #higher levels of verbose and level will slow down o/p of subprocess                   
                 ]
                 result = subprocess.run(
                     command,
@@ -154,7 +193,7 @@ class DomainService:
                     stderr=subprocess.PIPE,
                     text=True,
                     timeout=180,
-                    encoding='utf-8',   #some issue was coming in encoding in a specific test and so had to use utf-8
+                    encoding='utf-8', #some issue was coming in encoding in a specific test and so had to use utf-8
                     errors='replace'
                 )
 
@@ -185,7 +224,7 @@ class DomainService:
             if not task_id:
                 return {'error': 'Failed to create new task', 'status': 'error'}
             
-   
+        
             options_payload = {
                 'options': {
                     'url': domain,
@@ -208,7 +247,7 @@ class DomainService:
             thread.daemon = True
             thread.start()
             
-       
+        
             time.sleep(10)
             
 
@@ -223,7 +262,6 @@ class DomainService:
                     'task_id': task_id
                 }
             
-        
             log_res = requests.get(f'{DomainService.SQLMAP_API}/scan/{task_id}/log')
             log_data = log_res.json()
             log_entries = log_data.get('log', [])
@@ -282,7 +320,7 @@ class DomainService:
                 print(f"Scan {task_id} completed - No log data found")
                 return
             
-      
+     
             full_log = ' '.join(entry.get('message', '') for entry in log_entries)
             words = full_log.strip().split()
             last_1000_words = ' '.join(words[-1000:])
@@ -373,7 +411,7 @@ class DomainService:
     @staticmethod
     def check_ddos(domain):
         # Mock logic for ddos vulnerability
-        return "Potential ddos vulnerability found"    
+        return "Potential ddos vulnerability found" 
 
     @classmethod
     def get_supported_attacks(cls):
@@ -387,17 +425,17 @@ class DomainService:
         pdf_dir = "static/reports"
         os.makedirs(pdf_dir, exist_ok=True)
     
-    # Generate PDF filename
+        # Generate PDF filename
         safe_domain = domain.replace('/', '_').replace(':', '_')
         pdf_filename = f"{safe_domain}_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
         pdf_path = os.path.join(pdf_dir, pdf_filename)
     
-    # Create PDF
+        # Create PDF
         doc = SimpleDocTemplate(pdf_path, pagesize=letter)
         styles = getSampleStyleSheet()
         story = []
     
-    # Title
+        # Title
         title_style = ParagraphStyle(
         'CustomTitle',
         parent=styles['Heading1'],
@@ -408,12 +446,12 @@ class DomainService:
         story.append(Paragraph("Vulnora Security Report", title_style))
         story.append(Spacer(1, 20))
     
-    # Domain info
+        # Domain info
         story.append(Paragraph(f"<b>Domain:</b> {scan_data['domain']}", styles['Normal']))
         story.append(Paragraph(f"<b>Scan Date:</b> {scan_data['timestamp']}", styles['Normal']))
         story.append(Spacer(1, 20))
     
-    # Results section
+        # Results section
         story.append(Paragraph("Vulnerability Scan Results", styles['Heading2']))
         story.append(Spacer(1, 12))
 
@@ -421,7 +459,7 @@ class DomainService:
             attack_name = DomainService.supported_attacks.get(attack_type, attack_type.replace('_', ' ').title())
             story.append(Paragraph(f"<b>{attack_name}:</b>", styles['Heading3']))
 
-    # Convert result to string safely
+            # Convert result to string safely
             if isinstance(result, dict) or isinstance(result, list):
                 from html import escape
                 import json
@@ -435,7 +473,7 @@ class DomainService:
     
         doc.build(story)
 
-    # Return the API download URL
+        # Return the API download URL
         return f"http://localhost:5001/api/download/{pdf_filename}"
 
 class JWTVulnerabilityTester:
@@ -452,6 +490,12 @@ class JWTVulnerabilityTester:
             'password123', '12345678', 'abcdef', 'letmein', 'welcome',
             '', 'null', 'undefined', 'none', '0', '1', 'true', 'false'
         ]
+
+    def _safe_text_snippet(self, text, length=300):
+        """Utility to trim and clean response text for logging."""
+        if not text:
+            return ""
+        return text[:length].replace('\n', ' ').strip()
     
     def extract_jwt_from_response(self, response):
         """Extract JWT tokens from response headers and body"""
@@ -531,10 +575,20 @@ class JWTVulnerabilityTester:
     
     def test_none_algorithm(self, token, target_url):
         """Test if server accepts 'none' algorithm"""
+        
+        # Initialize dictionary to hold results, including new fields
+        vuln_details = {
+            'is_vuln': False,
+            'msg': "Server properly rejects 'none' algorithm",
+            'status_code': None,
+            'snippet': ''
+        }
+        
         try:
             payload = self.decode_jwt_payload(token)
             if not payload:
-                return False, "Could not decode original token"
+                vuln_details['msg'] = "Could not decode original token"
+                return vuln_details
             
             # Modify payload to be more convincing (admin privileges)
             test_payload = payload.copy()
@@ -570,20 +624,38 @@ class JWTVulnerabilityTester:
                     timeout=10
                 )
                 
+                # Update status and snippet regardless of success, capturing the last attempt
+                vuln_details['status_code'] = response.status_code
+                vuln_details['snippet'] = self._safe_text_snippet(response.text)
+                
                 if response.status_code in [200, 201, 202] and 'error' not in response.text.lower():
-                    return True, f"Server accepts 'none' algorithm at {endpoint}"
+                    vuln_details['is_vuln'] = True
+                    vuln_details['msg'] = f"Server accepts 'none' algorithm at {endpoint}"
+                    return vuln_details # Return immediately on successful detection
+                
             
-            return False, "Server properly rejects 'none' algorithm"
+            return vuln_details
             
         except Exception as e:
-            return False, f"Error testing 'none' algorithm: {e}"
+            vuln_details['msg'] = f"Error testing 'none' algorithm: {e}"
+            return vuln_details
     
     def test_weak_secret(self, token, target_url):
         """Test common weak secrets"""
+        
+        # Initialize dictionary to hold results, including new fields
+        vuln_details = {
+            'is_vuln': False,
+            'msg': "No weak secrets found",
+            'status_code': None,
+            'snippet': ''
+        }
+        
         try:
             original_payload = self.decode_jwt_payload(token)
             if not original_payload:
-                return False, "Could not decode original token"
+                vuln_details['msg'] = "Could not decode original token"
+                return vuln_details
             
             # Create a modified payload for testing
             test_payload = original_payload.copy()
@@ -609,28 +681,46 @@ class JWTVulnerabilityTester:
                             timeout=10
                         )
                         
+                        # Update status and snippet regardless of success, capturing the last attempt
+                        vuln_details['status_code'] = response.status_code
+                        vuln_details['snippet'] = self._safe_text_snippet(response.text)
+                        
                         if response.status_code in [200, 201, 202] and 'error' not in response.text.lower():
-                            return True, f"Weak secret found: '{secret}' (endpoint: {endpoint})"
+                            vuln_details['is_vuln'] = True
+                            vuln_details['msg'] = f"Weak secret found: '{secret}' (endpoint: {endpoint})"
+                            return vuln_details # Return immediately on successful detection
                             
                 except Exception:
                     continue
             
-            return False, "No weak secrets found"
+            return vuln_details
             
         except Exception as e:
-            return False, f"Error testing weak secrets: {e}"
+            vuln_details['msg'] = f"Error testing weak secrets: {e}"
+            return vuln_details
     
     def test_key_confusion(self, token, target_url):
         """Test RS256 to HS256 key confusion"""
+        
+        # Initialize dictionary to hold results, including new fields
+        vuln_details = {
+            'is_vuln': False,
+            'msg': "No key confusion vulnerability detected",
+            'status_code': None,
+            'snippet': ''
+        }
+        
         try:
             header = self.decode_jwt_header(token)
             payload = self.decode_jwt_payload(token)
             
             if not header or not payload:
-                return False, "Could not decode token"
+                vuln_details['msg'] = "Could not decode token"
+                return vuln_details
             
             if header.get('alg') != 'RS256':
-                return False, "Token is not RS256 (skipping key confusion test)"
+                vuln_details['msg'] = "Token is not RS256 (skipping key confusion test)"
+                return vuln_details
             
             # Common public key patterns to try
             test_keys = [
@@ -657,19 +747,23 @@ class JWTVulnerabilityTester:
                             timeout=10
                         )
                         
-                        if response.status_code in [200, 201, 202]:
-                            return True, f"Possible key confusion vulnerability (key: {key[:20]}...)"
+                        # Update status and snippet regardless of success, capturing the last attempt
+                        vuln_details['status_code'] = response.status_code
+                        vuln_details['snippet'] = self._safe_text_snippet(response.text)
                         
-
+                        if response.status_code in [200, 201, 202]:
+                            vuln_details['is_vuln'] = True
+                            vuln_details['msg'] = f"Possible key confusion vulnerability (key: {key[:20]}...)"
+                            return vuln_details # Return immediately on successful detection
                             
                 except Exception:
                     continue
             
-            return False, "No key confusion vulnerability detected"
-            
+            return vuln_details
             
         except Exception as e:
-            return False, f"Error testing key confusion: {e}"
+            vuln_details['msg'] = f"Error testing key confusion: {e}"
+            return vuln_details
     
     def test_url(self, url, include_brute_force=False):
         """Main testing function"""
@@ -708,32 +802,38 @@ class JWTVulnerabilityTester:
                 logger.info(f"Analyzing token {i+1}/{len(tokens)}")
                 
                 # Test 'none' algorithm vulnerability
-                is_vuln, msg = self.test_none_algorithm(token, url)
-                if is_vuln:
+                none_result = self.test_none_algorithm(token, url)
+                if none_result['is_vuln']:
                     results['vulnerabilities'].append({
                         'type': 'none_algorithm',
                         'severity': 'CRITICAL',
-                        'description': msg,
+                        'description': none_result['msg'],
+                        'status_code': none_result['status_code'], # <-- NEW FIELD
+                        'snippet': none_result['snippet'],  # <-- NEW FIELD
                         'token_sample': token[:50] + '...'
                     })
                 
                 # Test weak secret vulnerability
-                is_vuln, msg = self.test_weak_secret(token, url)
-                if is_vuln:
+                weak_secret_result = self.test_weak_secret(token, url)
+                if weak_secret_result['is_vuln']:
                     results['vulnerabilities'].append({
                         'type': 'weak_secret',
                         'severity': 'HIGH', 
-                        'description': msg,
+                        'description': weak_secret_result['msg'],
+                        'status_code': weak_secret_result['status_code'], # <-- NEW FIELD
+                        'snippet': weak_secret_result['snippet'],  # <-- NEW FIELD
                         'token_sample': token[:50] + '...'
                     })
                 
                 # Test key confusion vulnerability
-                is_vuln, msg = self.test_key_confusion(token, url)
-                if is_vuln:
+                key_confusion_result = self.test_key_confusion(token, url)
+                if key_confusion_result['is_vuln']:
                     results['vulnerabilities'].append({
                         'type': 'key_confusion',
                         'severity': 'MEDIUM',
-                        'description': msg,
+                        'description': key_confusion_result['msg'],
+                        'status_code': key_confusion_result['status_code'], # <-- NEW FIELD
+                        'snippet': key_confusion_result['snippet'], # <-- NEW FIELD
                         'token_sample': token[:50] + '...'
                     })
             

