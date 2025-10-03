@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 # import requests 
 # import time
 import threading
-
+from app.services.scanner import analyze_url_and_collect_logs
 from app.services.path_traversal import check_path_traversal
 from app.utils.call_llm import call_llm
 from app.utils.get_user import get_user
@@ -56,6 +56,7 @@ class DomainService:
         "jwt":"JWT Manipulation",
         "ddos":"DDoS Attacks",
         "file_upload": "File Upload",
+        "IP Scratching": "IP Scratching"
         # Add more attack types here
     }
     
@@ -78,6 +79,8 @@ class DomainService:
                 results['cmd_injection']  = check_cmd_injection(domain)  
             elif attack == "jwt_vulnerabilities":
                 results['jwt_vulnerabilities'] = DomainService.check_jwt_vulnerabilities(domain)
+            elif attack == "IP Scratching":
+                results['IP Scratching'] = analyze_url_and_collect_logs(domain)
             elif attack == "csrf":
                 results['csrf'] = DomainService.check_csrf(domain)            
             # elif attack == "path_traversal":
@@ -208,10 +211,8 @@ class DomainService:
                 output = (stdout or "") + "\n" + (stderr or "")
                 output_lower = output.lower()
 
-                if "no parameter(s) found for testing" or "no usable links found"in output_lower:
+                if ("no parameter(s) found for testing" in output_lower) or ("no usable links found" in output_lower):
                     result = "NO VULNERABILITIES FOUND"
-                elif "error" in output_lower:
-                    result = "ERROR DURING SCAN"
                 else:
                     result = "THERE ARE VULNERABILITIES"
 
