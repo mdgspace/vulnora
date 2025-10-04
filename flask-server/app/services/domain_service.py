@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 # import requests 
 # import time
 import threading
-
+from app.services.scanner import analyze_url_and_collect_logs
 from app.services.path_traversal import check_path_traversal
 from app.utils.call_llm import call_llm
 from app.utils.get_user import get_user
@@ -56,10 +56,11 @@ class DomainService:
         "jwt":"JWT Manipulation",
         "ddos":"DDoS Attacks",
         "file_upload": "File Upload",
+        "IP Scratching": "IP Scratching"
         # Add more attack types here
     }
     
-    SQLMAP_API = 'http://localhost:8775'
+
 
     # Store scan results temporarily (in production, use database)
     scan_results_cache = {}
@@ -109,6 +110,8 @@ class DomainService:
                 results['cmd_injection'] = check_cmd_injection(domain) 
             elif attack == "jwt_vulnerabilities":
                 results['jwt_vulnerabilities'] = DomainService.check_jwt_vulnerabilities(domain)
+            elif attack == "IP Scratching":
+                results['IP Scratching'] = analyze_url_and_collect_logs(domain)
             elif attack == "csrf":
                 results['csrf'] = DomainService.check_csrf(domain) 
             # elif attack == "path_traversal":
@@ -214,129 +217,53 @@ class DomainService:
 
     @staticmethod
     def check_sql_injection(domain):
-        """SQL injection check using SQLMap"""
+        """Run SQLMap locally via CLI instead of API"""
         try:
-     
-            task_res = requests.get(f'{DomainService.SQLMAP_API}/task/new')
-            task_data = task_res.json()
-            task_id = task_data.get('taskid')
-            
-            if not task_id:
-                return {'error': 'Failed to create new task', 'status': 'error'}
-            
-        
-            options_payload = {
-                'options': {
-                    'url': domain,
-                    'batch': True,
-                    'crawl': 3,
-                    'randomAgent': True,
-                    'threads': 5,
-                    'risk': 2
-                }
-            }
-            
-            requests.post(f'{DomainService.SQLMAP_API}/option/{task_id}/set', json=options_payload)
-            
+            with tempfile.TemporaryDirectory() as tmpdir:
+                report_path = os.path.join(tmpdir, "sqlmap_report.txt")
+                command = [
+                    "sqlmap",
+                    "-u", domain,
+                    "--batch",
+                    "--crawl=3",
+                    "--random-agent",
+                    "--threads=5",
+                    "--risk=2",
+                    "--output-dir", tmpdir
+                ]
 
-            scan_payload = {'url': domain}
-            requests.post(f'{DomainService.SQLMAP_API}/scan/{task_id}/start', json=scan_payload)
-            
+                process = subprocess.Popen(
+                    command,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    encoding="utf-8",
+                    errors="replace"
+                )
 
-            thread = threading.Thread(target=DomainService._check_scan_status, args=(task_id,))
-            thread.daemon = True
-            thread.start()
-            
-        
-            time.sleep(10)
-            
+                try:
+                    stdout, stderr = process.communicate(timeout=300)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    return {"status": "error", "error": "SQLMap scan timed out"}
 
-            status_res = requests.get(f'{DomainService.SQLMAP_API}/scan/{task_id}/status')
-            status_data = status_res.json()
-            is_terminated = status_data.get('status') == 'terminated'
-            
-            if not is_terminated:
+                output = (stdout or "") + "\n" + (stderr or "")
+                output_lower = output.lower()
+
+                if ("no parameter(s) found for testing" in output_lower) or ("no usable links found" in output_lower):
+                    result = "NO VULNERABILITIES FOUND"
+                else:
+                    result = "THERE ARE VULNERABILITIES"
+
                 return {
-                    'status': 'running',
-                    'message': 'Scan still in progress, try again later',
-                    'task_id': task_id
+                    "status": "completed",
+                    "result": result,
+                    "response": output.strip()
                 }
-            
-            log_res = requests.get(f'{DomainService.SQLMAP_API}/scan/{task_id}/log')
-            log_data = log_res.json()
-            log_entries = log_data.get('log', [])
-            
-            if not log_entries:
-                return {
-                    'status': 'completed',
-                    'message': 'No log data found.'
-                }
-            
-            
-            full_log = ' '.join(entry.get('message', '') for entry in log_entries)
-            words = full_log.strip().split()
-            last_1000_words = ' '.join(words[-1000:])
-            
-            if "no parameter(s) found for testing" in last_1000_words:
-                result = "NO VULNERABILITIES FOUND"
-            else:
-                result = "THERE ARE VULNERABILITIES"
-            
-            return {
-                'status': 'completed',
-                'result': result,
-                'response': last_1000_words,
-                'task_id': task_id
-            }
-            
-        except requests.exceptions.RequestException as e:
-            print(f"Request error: {e}")
-            return {'error': f'Request error: {str(e)}', 'status': 'error'}
-        except Exception as e:
-            print(f"Unexpected error: {e}")
-            return {'error': f'Unexpected error: {str(e)}', 'status': 'error'}
 
-    @staticmethod
-    def _check_scan_status(task_id, delay=10):
-        """Background function to check scan status after delay"""
-        time.sleep(delay)
-        
-        try:
-            
-            status_res = requests.get(f'{DomainService.SQLMAP_API}/scan/{task_id}/status')
-            status_data = status_res.json()
-            is_terminated = status_data.get('status') == 'terminated'
-            
-            if not is_terminated:
-                print(f"Scan {task_id} still running")
-                return
-            
-            
-            log_res = requests.get(f'{DomainService.SQLMAP_API}/scan/{task_id}/log')
-            log_data = log_res.json()
-            log_entries = log_data.get('log', [])
-            
-            if not log_entries:
-                print(f"Scan {task_id} completed - No log data found")
-                return
-            
-     
-            full_log = ' '.join(entry.get('message', '') for entry in log_entries)
-            words = full_log.strip().split()
-            last_1000_words = ' '.join(words[-1000:])
-            
-            if "no parameter(s) found for testing" in last_1000_words:
-                print("NO VULNERABILITIES FOUND")
-            else:
-                print("THERE ARE VULNERABILITIES")
-              
-            print(f"Scan {task_id} completed successfully")
-            
         except Exception as e:
-            print(f"Error checking scan status: {e}")
-    
-        # Mock logic for SQLi vulnerability
-        return "Potential SQL injection found"
+            logger.error(f"SQL Injection check failed: {str(e)}")
+            return {"error": str(e), "status": "error"}
     
     @staticmethod
     def check_jwt_vulnerabilities(domain):

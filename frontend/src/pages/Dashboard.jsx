@@ -2,9 +2,6 @@ import React, { useState } from 'react';
 import { Shield, Zap, Search, AlertTriangle, CheckCircle, XCircle, Loader, Globe, Code, Settings, FileX, Upload, Terminal, Key, Bomb } from 'lucide-react';
 import Navbar from '../components/Navbar';
 
-
-// TODO: Integrate UI with the backend.. deadline: 24th Aug EOD😭
-
 // Define the data for different attack types.
 // This is an array of objects, which works in both JS and TS.
 const attackTypes = [

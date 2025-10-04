@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify, send_from_directory
 import os, re
 from datetime import datetime
 from app.utils.get_user import get_user
-
+from app.services.scanner import analyze_url_and_collect_logs
 from urllib.parse import unquote
 from app.services.domain_service import DomainService
 
@@ -106,3 +106,16 @@ def run_sqlmap():
     result = DomainService.check_sql_injection(target_url)
     
     return jsonify(result)
+
+@domain_bp.route('/scan-ip', methods=['POST'])
+def scan_deep():
+    data = request.get_json()
+    if not data or 'url' not in data:
+        return jsonify({'error': 'Missing target URL'}), 400
+
+    target_url = data['url']
+    try:
+        results = analyze_url_and_collect_logs(target_url)
+        return jsonify(results), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
