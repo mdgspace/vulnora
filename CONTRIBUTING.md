@@ -1,23 +1,23 @@
-# 🛠️ Contributing Guide
+# Contributing Guide
 
-Thanks for your interest in contributing to **Vulnora** 🎉  
+Thanks for your interest in contributing to **Vulnora**
 We’re thrilled to have you here!
 
 Whether it’s fixing bugs, adding features, improving docs, or even fixing typos - all contributions are welcome.
 
 ---
 
-## 🚀 How to Contribute
+## How to Contribute
 
-### 1️⃣ Fork & Clone
+### Fork & Clone
 Fork the repository and clone it locally.
 
 ```bash
-git clone https://github.com/your-username/project-name.git
-cd project-name
+git clone https://github.com/mdgspace/vulnora.git
+cd vulnora
 ```
 
-### 2️⃣ Set Up Development Environment
+### Set Up Development Environment
 
 - Set up environment variables by copying `.env.sample` to `.env` and filling your credentials.
 - Make sure you have set up [Docker](https://www.docker.com/get-started/) on your device and you are familiar with [basic commands](https://docs.docker.com/get-started/docker_cheatsheet.pdf).
@@ -28,7 +28,7 @@ cd project-name
 
 ---
 
-## 💡 Creating an Issue
+## Creating an Issue
 
 Before submitting a PR, make sure an issue exists:
 
@@ -38,7 +38,7 @@ Before submitting a PR, make sure an issue exists:
 
 ---
 
-## 🔄 Creating a Pull Request
+## Creating a Pull Request
 **Steps:**
 
 1. Create a new branch:
@@ -62,32 +62,53 @@ Before submitting a PR, make sure an issue exists:
 
 ---
 
-## 🏷️ Commit Message Format
+## Conventional Commits Standard (Mandatory)
 
-Follow [Conventional Commits](https://www.conventionalcommits.org/):
-```bash
-feat: add new login API
-fix: SQLi attack log issue
-docs: update README
-chore: update dependencies
+We enforce **Conventional Commits** to ensure a readable and consistent commit history. This standard is crucial for automating changelog generation.
+
+### Format
+
+Every commit message must be structured as follows:
+```
+<type>(<optional scope>): <description>
+
+[optional body]
+
+[optional footer(s)]
 ```
 
----
+### Types (The most common ones):
 
-## 🧠 Tips for Hacktoberfest Contributors
+| Type | When to Use It |
+| :--- | :--- |
+| **`feat`** | A new feature, enhancement, or major addition (e.g., `feat: Add CSRF attack implementation`). |
+| **`fix`** | A bug fix (e.g., `fix(DDoS): Fix DDoS implementation bugs`). |
+| **`docs`** | Documentation-only changes (e.g., `docs: Update README with setup instructions`). |
+| **`style`** | Code styling (linting, formatting, missing semicolons, etc.); doesn't affect code logic. |
+| **`refactor`** | A code change that neither fixes a bug nor adds a feature (e.g., restructuring files, cleaning up utility functions). |
+| **`perf`** | A code change that improves performance (e.g., Simulation logic optimization). |
+| **`test`** | Adding missing tests or correcting existing tests. |
+| **`build`** | Changes that affect the build system or external dependencies (e.g., `package.json`). |
+| **`chore`** | Routine tasks that don't change source code or tests (e.g., updating `.gitignore`). |
+
+### Scope (Optional)
+
+The scope provides context for the change, usually naming the affected component or file path (e.g., `(xss)`, `(repo)`, `(ui)`, `(auth), (nmap)`).
+
+## Tips for Hacktoberfest Contributors
 - Check for issues labeled hacktoberfest, good first issue, or help wanted.
 - Read the issue carefully before claiming it.
 - Be respectful and communicate clearly in PR discussions.
-- You can always ask for help, we’re beginner-friendly ❤️
+- You can always ask for help, we’re beginner-friendly
 
 ---
 
-## 🧾 License
+## License
 By contributing, you agree that your contributions will be licensed under the same license as the [project](License).
 
 ---
 
-## 🙌 Credits
+## Credits
 This project is maintained by the MDG Space team and open-source contributors.
 
 ---
