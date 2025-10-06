@@ -3,7 +3,6 @@ from app import create_app
 import os
 
 app = create_app()  
-# For serving PDF reports if needed
 
 @app.route('/static/reports/<filename>')
 def serve_report(filename):
