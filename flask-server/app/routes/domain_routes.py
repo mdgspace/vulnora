@@ -4,7 +4,7 @@ from datetime import datetime
 from app.utils.get_user import get_user
 from app.services.scanner import analyze_url_and_collect_logs
 from urllib.parse import unquote
-from app.services.domain_service import DomainService
+from app.services import domain_service
 
 domain_bp = Blueprint('domain', __name__)
 
@@ -25,8 +25,8 @@ def scan_domain():
     
     user_id = get_user()
     print("[SCAN ROUTE] user_id =", user_id)
-    results = DomainService.scan_domain(domain, attacks, vuln_endpoint, upload_endpoint)
-    DomainService.scan_results_cache[normalized_domain] = {
+    results = domain_service.scan_domain(domain, attacks, vuln_endpoint, upload_endpoint)
+    domain_service.scan_results_cache[normalized_domain] = {
         "domain": domain,
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "results": results
@@ -37,14 +37,14 @@ def scan_domain():
 
 @domain_bp.route('/attacks', methods=['GET'])
 def get_supported_attacks():
-    attacks = DomainService.get_supported_attacks()
+    attacks = domain_service.get_supported_attacks()
     return jsonify({"attacks": attacks}), 200
 
 @domain_bp.route('/report/<path:domain>', methods=['GET'])
 def get_report_pdf(domain):
     try:
         normalized = domain.strip().lower().rstrip('/')
-        pdf_url = DomainService.generate_pdf_report(normalized)
+        pdf_url = domain_service.generate_pdf_report(normalized)
         return jsonify({"pdf_url": pdf_url}), 200
     except Exception as e:
         import traceback
@@ -71,7 +71,7 @@ def test_jwt_vulnerabilities():
         if not parsed.netloc:
             return jsonify({'error': 'Invalid URL format'}), 400
         
-        results = DomainService.check_jwt_vulnerabilities(url)
+        results = domain_service.check_jwt_vulnerabilities(url)
         
         return jsonify(results), 200
         
@@ -88,7 +88,7 @@ def run_sqlmap():
     target_url = data['url']
     
    
-    result = DomainService.check_sql_injection(target_url)
+    result = domain_service.check_sql_injection(target_url)
     
     return jsonify(result)
 

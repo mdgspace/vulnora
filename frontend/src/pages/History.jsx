@@ -84,11 +84,6 @@ const HistoryPage = () => {
                       <h2 className="text-2xl font-bold text-white mb-1">
                         {report.website}
                       </h2>
-                      <p className="text-sm text-gray-500">
-                        Scanned on:{" "}
-                        {createdAt ? createdAt.toLocaleDateString() : "Unknown"} at{" "}
-                        {createdAt ? createdAt.toLocaleTimeString() : "Unknown"}
-                      </p>
                     </div>
                     <div className="flex flex-wrap gap-2 mt-1">
                       {report.tags?.map((tag) => (

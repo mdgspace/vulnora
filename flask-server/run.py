@@ -1,9 +1,17 @@
-from flask import send_from_directory
-from app import create_app  
+from flask import Flask, send_from_directory
+from flask_cors import CORS
 import os
 
-app = create_app()  
+from app.routes.domain_routes import domain_bp
 
+app = Flask(__name__)
+
+CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+# Register blueprints
+app.register_blueprint(domain_bp, url_prefix='/api')
+
+# Serve reports
 @app.route('/static/reports/<filename>')
 def serve_report(filename):
     reports_dir = os.path.join(os.getcwd(), 'static', 'reports')

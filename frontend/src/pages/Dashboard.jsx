@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { Shield, Zap, Search, AlertTriangle, CheckCircle, XCircle, Loader, Globe, Code, Settings, FileX, Upload, Terminal, Key, Bomb, ChevronDown, ChevronUp, Copy } from 'lucide-react';
+import {
+  Shield, Zap, Search, AlertTriangle, CheckCircle, XCircle, Loader,
+  Globe, Code, Settings, FileX, Upload, Terminal, Key, Bomb,
+  ChevronDown, ChevronUp, Copy
+} from 'lucide-react';
 import Navbar from '../components/Navbar';
 
 // Define attack types
 const attackTypes = [
   { id: 'sql_injection', name: 'SQL Injection', description: 'Tests for database injection vulnerabilities', icon: <Code className="w-4 h-4" />, severity: 'critical' },
-  //{ id: 'Cross-Site Scripting', name: 'Cross-Site Scripting (XSS)', description: 'Detects script injection vulnerabilities', icon: <Terminal className="w-4 h-4" />, severity: 'high' },
-  //{ id: 'csrf', name: 'Cross-Site Request Forgery', description: 'Checks for CSRF protection mechanisms', icon: <Shield className="w-4 h-4" />, severity: 'medium' },
   { id: 'path_traversal', name: 'Directory Traversal', description: 'Tests for unauthorized file access', icon: <FileX className="w-4 h-4" />, severity: 'high' },
   { id: 'insecure_deserialization', name: 'Insecure Deserialization', description: 'Detects vulnerabilities in data deserialization', icon: <Settings className="w-4 h-4" />, severity: 'critical' },
   { id: 'cmd_injection', name: 'Command Injection', description: 'Tests for OS command injection vulnerabilities', icon: <Terminal className="w-4 h-4" />, severity: 'critical' },
@@ -40,38 +42,26 @@ const Dashboard = () => {
     }
   };
 
-  // Toggle logs expansion
   const toggleLogs = (attackId) => {
     setExpandedLogs((prev) => ({ ...prev, [attackId]: !prev[attackId] }));
   };
 
-  // Copy logs to clipboard
   const copyLogs = (logs) => {
     navigator.clipboard.writeText(JSON.stringify(logs, null, 2));
   };
 
-  // Determine status
   const determineStatus = (result) => {
-    if (result.vulnerable === true || result.error || result.vulnerability_detected) {
-      return 'vulnerable';
-    } else if (result.warning || result.potential_risk) {
-      return 'warning';
-    } else {
-      return 'secure';
-    }
+    if (result.vulnerable === true || result.error || result.vulnerability_detected) return 'vulnerable';
+    if (result.warning || result.potential_risk) return 'warning';
+    return 'secure';
   };
 
   const getSummaryDetails = (result) => {
-    if (result.summary || result.message) {
-      return result.summary || result.message;
-    } else if (typeof result === 'string') {
-      return result;
-    } else {
-      return 'Scan completed. Check logs for details.';
-    }
+    if (result.summary || result.message) return result.summary || result.message;
+    if (typeof result === 'string') return result;
+    return 'Scan completed. Check logs for details.';
   };
 
-  // Start scan
   const startScan = async () => {
     if (!domain || selectedAttacks.length === 0) return;
 
@@ -281,16 +271,9 @@ const Dashboard = () => {
                   <div className="flex items-start gap-3">
                     {getStatusIcon(result.status)}
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="font-semibold text-white">{result.attackType}</h3>
-                        <span className={`text-xs px-2 py-1 rounded font-medium ${
-                          result.status === 'vulnerable' ? 'bg-red-400/20 text-red-400' :
-                          result.status === 'secure' ? 'bg-green-400/20 text-green-400' :
-                          'bg-yellow-400/20 text-yellow-400'
-                        }`}>
-                          {result.status.toUpperCase()}
-                        </span>
-                      </div>
+                      {/* Attack name only (status label removed) */}
+                      <h3 className="font-semibold text-white mb-2">{result.attackType}</h3>
+
                       <p className="text-gray-300 mb-2">{result.details}</p>
                       {result.recommendation && (
                         <div className="bg-gray-800/50 rounded p-3 mt-2">
@@ -299,7 +282,7 @@ const Dashboard = () => {
                         </div>
                       )}
 
-                      {/* 🔹 RAW LOGS SECTION */}
+                      {/* Raw Logs */}
                       {result.fullLogs && (
                         <div className="mt-4">
                           <button
@@ -308,9 +291,9 @@ const Dashboard = () => {
                           >
                             {expandedLogs[result.attackType] ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                             View Raw Logs
-                            <Copy 
-                              className="w-4 h-4 ml-auto cursor-pointer hover:text-white" 
-                              onClick={(e) => { e.stopPropagation(); copyLogs(result.fullLogs); }} 
+                            <Copy
+                              className="w-4 h-4 ml-auto cursor-pointer hover:text-white"
+                              onClick={(e) => { e.stopPropagation(); copyLogs(result.fullLogs); }}
                               title="Copy logs"
                             />
                           </button>
@@ -327,24 +310,6 @@ const Dashboard = () => {
                   </div>
                 </div>
               ))}
-            </div>
-
-            {/* Summary */}
-            <div className="mt-6 pt-6 border-t border-gray-700">
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <div className="text-2xl font-bold text-red-400">{scanResults.filter(r => r.status === 'vulnerable').length}</div>
-                  <div className="text-sm text-gray-400">Vulnerabilities</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-yellow-400">{scanResults.filter(r => r.status === 'warning').length}</div>
-                  <div className="text-sm text-gray-400">Warnings</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-green-400">{scanResults.filter(r => r.status === 'secure').length}</div>
-                  <div className="text-sm text-gray-400">Secure</div>
-                </div>
-              </div>
             </div>
           </div>
         )}
