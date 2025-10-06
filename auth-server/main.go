@@ -63,10 +63,6 @@ func main() {
 		reports := api.Group("/reports")
 		{
 			reports.GET("/", authMiddleware(), getReportsHandler)
-			// reports.GET("/:id", getReportHandler) //TODO
-			// reports.POST("/", createReportHandler) //TODO
-			// reports.PUT("/:id", updateReportHandler) //TODO
-			// reports.DELETE("/:id", deleteReportHandler) //TODO
 		}
 
 		// Auth Routes
@@ -74,7 +70,6 @@ func main() {
 		{
 			auth.POST("/signup", signupHandler)
 			auth.POST("/login", loginHandler)
-			// TODO: /auth/user/profile
 		}
 	}
 

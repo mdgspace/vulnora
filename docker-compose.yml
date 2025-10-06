@@ -3,10 +3,19 @@ services:
     build:
       context: .
       dockerfile: flask-server/Dockerfile
+      args:
+        SQLMAP_TAG: "1.9.5"
     env_file:
       - flask-server/.env   
     ports:
       - "5001:5001"
+    volumes:
+      - ./flask-server:/app
+    cap_add:
+      - NET_RAW
+      - NET_ADMIN
+    stdin_open: true
+    tty: true
 
   go-server:
     build:
@@ -22,7 +31,7 @@ services:
     env_file:
       - auth-server/.env   
     ports:
-      - "3000:3000"
+      - "8081:8081"
 
   frontend:
     build:

@@ -7,7 +7,7 @@ security researchers **identify common vulnerabilities** in web
 applications and provides **actionable recommendations** for mitigation.
 
 With an intuitive dashboard, users can select attack vectors (e.g., SQL
-Injection, XSS, CSRF, DDoS, etc.), run tests on target domains, and
+Injection, DDoS, etc.), run tests on target domains, and
 receive **structured vulnerability reports** enriched with best
 practices using an **LLM-powered assistant**.
 
@@ -19,14 +19,13 @@ practices using an **LLM-powered assistant**.
     on any domain.
 -   🛡️ **Supported Attack Vectors**:
     -   SQL Injection (Critical)
-    -   Cross-Site Scripting (XSS)
-    -   Cross-Site Request Forgery (CSRF)
     -   Directory Traversal
     -   Insecure Deserialization
     -   Command Injection
     -   JWT Manipulation
     -   File Upload Vulnerabilities
     -   DDoS Attack Simulation
+    -   IP Scratching
 -   📊 **History Dashboard** -- View past reports and track
     vulnerabilities over time.
 -   🤖 **LLM Integration** -- Attack results are enhanced with
@@ -76,7 +75,7 @@ practices using an **LLM-powered assistant**.
 
 ``` bash
 # 1. Clone the repository
-git clone https://github.com/your-username/vulnora.git
+git clone https://github.com/mdgspace/vulnora.git
 cd vulnora
 
 # 2. Configure environment files
@@ -93,7 +92,7 @@ http://localhost:5173
 ### Service Ports
 
 -   Frontend → `5173`
--   Auth Server (Go) → `3000`
+-   Auth Server (Go) → `8081`
 -   Flask Server (Python) → `5001`
 -   Go Server (DDoS) → `8080`
 
@@ -104,7 +103,7 @@ http://localhost:5173
 -   **Frontend**: React, Vite, TailwindCSS, Axios
 -   **Backend**:
     -   Go (Gin Router) -- Auth & DDoS services
-    -   Flask (Python) -- Vulnerability testing
+    -   Python (Flask) -- Vulnerability testing
 -   **Database**: MongoDB
 -   **Auth**: JWT
 -   **LLM**: HuggingFace API
@@ -114,7 +113,7 @@ http://localhost:5173
 
 ## 🧩 Future Enhancements
 
--   🔍 Add more vulnerability checks (e.g., SSRF, Open Redirects).
+-   🔍 Add more vulnerability checks (e.g. XSS, CSRF, SSRF, Open Redirects).
 -   📑 Export reports (PDF/CSV).
 -   🌐 Cloud deployment (Kubernetes, AWS).
 
@@ -124,10 +123,6 @@ http://localhost:5173
 
 Contributions are welcome! 🎉
 
-1.  Fork the repo
-2.  Create a feature branch (`git checkout -b feature-name`)
-3.  Commit changes (`git commit -m "Add feature"`)
-4.  Push branch (`git push origin feature-name`)
-5.  Open a PR
+Check [CONTRIBUTING.md](CONTRIBUTING) for details.
 
 ------------------------------------------------------------------------

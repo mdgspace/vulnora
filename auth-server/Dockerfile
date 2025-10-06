@@ -7,6 +7,6 @@ RUN go mod download
 
 COPY auth-server/ .
 
-EXPOSE 3000
+EXPOSE 8081
 
 CMD ["go", "run", "."]
