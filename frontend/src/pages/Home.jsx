@@ -43,7 +43,7 @@ export default function App() {
             <div>
               <h3 className="text-3xl font-bold text-green-400 mb-4">About Vulnora</h3>
               <p className="text-gray-400 leading-relaxed">
-                In a constantly evolving threat landscape, staying ahead of attackers is crucial. Vulnora is a powerful web security scanner designed for developers and security professionals. It's built to be intuitive, giving you the ability to simulate common attack vectors like SQL Injection, Cross-Site Scripting (XSS), and more, all within a safe, controlled environment. Our goal is to empower you to build more secure applications by providing clear, actionable insights.
+                In a constantly evolving threat landscape, staying ahead of attackers is crucial. Vulnora is a powerful web security scanner designed for developers and security professionals. It's built to be intuitive, giving you the ability to simulate common attack vectors like SQL Injection, JWT Attack, and more, all within a safe, controlled environment. Our goal is to empower you to build more secure applications by providing clear, actionable insights.
               </p>
             </div>
             <div className="relative">
@@ -55,9 +55,6 @@ export default function App() {
                 </p>
                 <p className="font-mono text-sm text-white">
                   - SQL Injection <span className="text-yellow-400">[STATUS: VULNERABLE]</span>
-                </p>
-                <p className="font-mono text-sm text-white">
-                  - Cross-Site Scripting <span className="text-yellow-400">[STATUS: VULNERABLE]</span>
                 </p>
                 <p className="font-mono text-sm text-green-400 mt-4">~$ initiate-scan --target="example.com"</p>
               </div>
@@ -72,7 +69,7 @@ export default function App() {
             <div className="bg-gray-800 p-8 rounded-2xl shadow-lg border border-green-500/20 transition-all duration-300 hover:border-green-400 hover:shadow-green-500/20">
               <BugPlay className="w-12 h-12 text-green-500 mb-4" />
               <h4 className="text-xl font-semibold mb-2">Comprehensive Scanning</h4>
-              <p className="text-gray-400">Detect a wide range of common web vulnerabilities, including XSS, SQLi, and CSRF.</p>
+              <p className="text-gray-400">Detect a wide range of common web vulnerabilities, including IP Scratching, JWT, SQLi.</p>
             </div>
             <div className="bg-gray-800 p-8 rounded-2xl shadow-lg border border-green-500/20 transition-all duration-300 hover:border-green-400 hover:shadow-green-500/20">
               <Rocket className="w-12 h-12 text-green-500 mb-4" />
