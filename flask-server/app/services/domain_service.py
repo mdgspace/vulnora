@@ -1,3 +1,4 @@
+
 import requests
 import jwt
 import json
@@ -62,7 +63,6 @@ class DomainService:
     
 
 
-    # Store scan results temporarily (in production, use database)
     scan_results_cache = {}
 
     @staticmethod
@@ -184,11 +184,11 @@ class DomainService:
                     'wapiti',
                     '-u', domain, #used to specify domain on which attack is being done, taken as parameter
                     '--module', 'xss', #used to specify which type of attack to be done
-                    '--level', '2', #used to specify level of attack              
+                    '--level', '2', #used to specify level of attack              
                     '-f', 'json', 
                     '-o', report_path, #used to specify path at which report is created
                     '-v', '2' #used to specify verbose of the attack (level of detail)
-                    #higher levels of verbose and level will slow down o/p of subprocess                   
+                    #higher levels of verbose and level will slow down o/p of subprocess                   
                 ]
                 result = subprocess.run(
                     command,
