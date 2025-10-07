@@ -40,12 +40,12 @@ practices using an **LLM-powered assistant**.
 
 ## 🏗️ Architecture
 
--   **Frontend** -- React + Vite + TailwindCSS + Axios\
+-   **Frontend** -- React + Vite + TailwindCSS + Axios
 -   **Auth Server (Go)** -- Authentication & request routing
-    (JWT-based)\
--   **Flask Server (Python)** -- Executes most vulnerability tests\
--   **Go Server** -- Handles high-performance DDoS attack simulation\
--   **MongoDB** -- Stores attack reports and user history\
+    (JWT-based)
+-   **Flask Server (Python)** -- Executes most vulnerability tests
+-   **Go Server** -- Handles high-performance DDoS attack simulation
+-   **MongoDB** -- Stores attack reports and user history
 -   **LLM (HuggingFace API)** -- Formats results into structured reports
     with remediation advice
 
@@ -53,13 +53,13 @@ practices using an **LLM-powered assistant**.
 
 ## 📂 Project Structure
 
-    VULNORA/
-    ├── auth-server/        # Go-based authentication server (JWT, routing)
-    ├── flask-server/       # Python Flask server for attack execution
-    ├── go-server/          # Go server handling DDoS load tests
-    ├── frontend/           # React + Vite + Tailwind client app
-    ├── docker-compose.yml  # Orchestration of all services
-    └── requirements.txt    # Python deps for Flask server
+    VULNORA
+    ├── auth-server        # Go-based authentication server (JWT, routing)
+    ├── flask-server       # Python Flask server for attack execution
+    ├── go-server          # Go server handling DDoS load tests
+    ├── frontend           # React + Vite + Tailwind client app
+    ├── docker-compose.yml # Orchestration of all services
+    └── requirements.txt   # Python deps for Flask server
 
 ------------------------------------------------------------------------
 
@@ -123,6 +123,6 @@ http://localhost:5173
 
 Contributions are welcome! 🎉
 
-Check [CONTRIBUTING.md](CONTRIBUTING) for details.
+Check [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ------------------------------------------------------------------------
