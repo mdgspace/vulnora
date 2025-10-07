@@ -96,6 +96,9 @@ http://localhost:5173
 -   Flask Server (Python) → `5001`
 -   Go Server (DDoS) → `8080`
 
+### Preview
+[![Watch the demo](https://img.youtube.com/vi/K_gR07fLxl0/maxresdefault.jpg)](https://youtu.be/K_gR07fLxl0)
+
 ------------------------------------------------------------------------
 
 ## 🛠️ Tech Stack
