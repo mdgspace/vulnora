@@ -1,24 +1,32 @@
 import { Navigate, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactNode, ReactElement } from "react";
 import { handleError } from "./utils";
 import Load from "./Loader";
 
-function ProtectedRoute({ children }) {
-  const [isAuthorized, setIsAuthorized] = useState(null);
+interface JwtPayload {
+  exp: number;
+}
+
+interface ProtectedRouteProps {
+  children: ReactNode;
+}
+
+function ProtectedRoute({ children }: ProtectedRouteProps): ReactElement {
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     auth().catch(() => setIsAuthorized(false));
   }, []);
 
-  const auth = async () => {
+  const auth = async (): Promise<void> => {
     const token = localStorage.getItem("ACCESS_TOKEN");
     if (!token) {
       setIsAuthorized(false);
       return;
     }
-    const decoded = jwtDecode(token);
+    const decoded = jwtDecode<JwtPayload>(token);
     const tokenExpiration = decoded.exp;
     const now = Date.now() / 1000;
 
@@ -39,7 +47,7 @@ function ProtectedRoute({ children }) {
     return <Load />;
   }
 
-  return isAuthorized ? children : <Navigate to="/login" />;
+  return isAuthorized ? <>{children}</> : <Navigate to="/login" />;
 }
 
 export default ProtectedRoute;

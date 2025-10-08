@@ -1,15 +1,66 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, ReactElement } from "react";
 import Navbar from "../components/Navbar";
 import { History } from "lucide-react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
-const HistoryPage = () => {
-  const [reports, setReports] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+interface Criticality {
+  overall_level: string;
+  rationale?: string;
+}
+
+interface ReportMeta {
+  generated_at: string;
+  scan_origin_summary: string;
+  confidence_score: string;
+  raw?: Record<string, unknown>;
+}
+
+interface Vulnerability {
+  title: string;
+  severity: string;
+  cwe_id?: string;
+  cve_id?: string;
+  attack_vector: string;
+  affected_components?: string[];
+  evidence?: string;
+  technical_analysis?: string;
+  impact?: string;
+  root_cause?: string;
+  exploitation_scenario?: string;
+  detection_source?: string;
+  related_vulnerabilities?: string[];
+  remediation?: string;
+  references?: string[];
+}
+
+interface ParsedReport {
+  summary?: string;
+  criticality?: Criticality;
+  actions?: string[] | string;
+  detailed_report?: Vulnerability[];
+}
+
+interface ReportData {
+  parsed?: ParsedReport;
+  meta?: ReportMeta;
+  error?: string;
+}
+
+interface Report {
+  _id: string;
+  website: string;
+  tags?: string[];
+  created_at?: string;
+  report?: ReportData;
+}
+
+const HistoryPage = (): ReactElement => {
+  const [reports, setReports] = useState<Report[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
-    const fetchReports = async () => {
+    const fetchReports = async (): Promise<void> => {
       try {
         setLoading(true);
         setError("");
@@ -22,15 +73,16 @@ const HistoryPage = () => {
         }
 
         const baseURL = import.meta.env.VITE_API_URL;
-        const res = await axios.get(`${baseURL}/api/reports/`, {
+        const res = await axios.get<{ data: Report[] }>(`${baseURL}/api/reports/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
         setReports(res.data.data || []);
       } catch (err) {
         console.error("Failed to fetch reports:", err);
+        const error = err as AxiosError<{ message?: string }>;
         setError(
-          err.response?.data?.message || "Failed to load reports. Please try again."
+          error.response?.data?.message || "Failed to load reports. Please try again."
         );
       } finally {
         setLoading(false);
@@ -71,8 +123,6 @@ const HistoryPage = () => {
             <div className="text-center text-gray-500">No past reports found.</div>
           ) : (
             reports.map((report) => {
-              const createdAt = report.created_at ? new Date(report.created_at) : null;
-
               return (
                 <div
                   key={report._id}
@@ -160,7 +210,7 @@ const HistoryPage = () => {
                   )}
 
                   {/* Detailed Vulnerabilities */}
-                  {report.report?.parsed?.detailed_report?.length > 0 && (
+                  {report.report?.parsed?.detailed_report && report.report.parsed.detailed_report.length > 0 && (
                     <div className="space-y-4">
                       <h3 className="text-xl font-semibold text-white mb-3">Detailed Vulnerabilities</h3>
                       {report.report.parsed.detailed_report.map((vul, idx) => (
@@ -185,7 +235,7 @@ const HistoryPage = () => {
                           <p>
                             <strong>Attack Vector:</strong> {vul.attack_vector}
                           </p>
-                          {vul.affected_components?.length > 0 && (
+                          {vul.affected_components && vul.affected_components.length > 0 && (
                             <p>
                               <strong>Affected Components:</strong>{" "}
                               {vul.affected_components.join(", ")}
@@ -221,7 +271,7 @@ const HistoryPage = () => {
                               <strong>Detection Source:</strong> {vul.detection_source}
                             </p>
                           )}
-                          {vul.related_vulnerabilities?.length > 0 && (
+                          {vul.related_vulnerabilities && vul.related_vulnerabilities.length > 0 && (
                             <div>
                               <strong>Related Vulnerabilities:</strong>
                               <ul className="list-disc list-inside mt-1 space-y-1">
@@ -236,7 +286,7 @@ const HistoryPage = () => {
                               <strong>Remediation:</strong> {vul.remediation}
                             </p>
                           )}
-                          {vul.references?.length > 0 && (
+                          {vul.references && vul.references.length > 0 && (
                             <div>
                               <strong>References:</strong>
                               <ul className="list-disc list-inside mt-1 space-y-1">
