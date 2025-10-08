@@ -1,33 +1,44 @@
-import React, { useEffect, useState } from 'react';
-import { Loader, UserPlus, Mail, Lock } from 'lucide-react';
-import { handleSuccess } from '../components/utils';
+import { useEffect, useState, FormEvent, ChangeEvent, ReactElement } from 'react';
+import { Loader, UserPlus } from 'lucide-react';
+import { handleSuccess, handleError } from '../components/utils';
 import { ToastContainer } from 'react-toastify';
 import { jwtDecode } from "jwt-decode";
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../components/api';
 
-// The main App component which renders the entire signup page.
-const Signup = () => {
-  // Checks if user is already logged in.
+interface JwtPayload {
+  exp: number;
+}
+
+interface FormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
+const Signup = (): ReactElement => {
   const navigate = useNavigate();
+  
   useEffect(() => {
-      try{
-        const token = localStorage.getItem("ACCESS_TOKEN");
-        const decoded = jwtDecode(token);
+    try {
+      const token = localStorage.getItem("ACCESS_TOKEN");
+      if (token) {
+        const decoded = jwtDecode<JwtPayload>(token);
         const tokenExpiration = decoded.exp;
         const now = Date.now() / 1000;
         
-        if (token && tokenExpiration > now) {
-            navigate("/home");
+        if (tokenExpiration > now) {
+          navigate("/home");
         }
-      } catch(err){
-        console.error(err);
       }
+    } catch (err) {
+      console.error(err);
     }
-  )
+  }, [navigate]);
 
-  // State to manage the form data.
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
     email: '',
@@ -35,12 +46,10 @@ const Signup = () => {
     confirmPassword: ''
   });
 
-  // State for UI feedback, like loading and messages.
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>('');
 
-  // Handles changes to all form inputs using the 'name' attribute.
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -48,29 +57,27 @@ const Signup = () => {
     }));
   };
 
-  // Handles form submission.
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setLoading(true);
     setMessage('');
 
-    const isValidPassword = (password) => {
-    const minLength = 6;
-    const hasUpperCase = /[A-Z]/.test(password);
-    const hasLowerCase = /[a-z]/.test(password);
-    const hasNumber = /\d/.test(password);
-    const hasSpecialChar = /[!@#$%^&*:]/.test(password);
+    const isValidPassword = (password: string): boolean => {
+      const minLength = 6;
+      const hasUpperCase = /[A-Z]/.test(password);
+      const hasLowerCase = /[a-z]/.test(password);
+      const hasNumber = /\d/.test(password);
+      const hasSpecialChar = /[!@#$%^&*:]/.test(password);
 
-    return (
-      password.length > minLength &&
-      hasUpperCase &&
-      hasLowerCase &&
-      hasNumber &&
-      hasSpecialChar
-    );
-  };
+      return (
+        password.length > minLength &&
+        hasUpperCase &&
+        hasLowerCase &&
+        hasNumber &&
+        hasSpecialChar
+      );
+    };
 
-    // Basic client-side validation.
     if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.confirmPassword) {
       setMessage('All fields are required.');
       setLoading(false);
@@ -83,21 +90,16 @@ const Signup = () => {
       return;
     }
     
-    // Check if the passwords match before submitting.
     if (formData.password !== formData.confirmPassword) {
-        setMessage("Passwords do not match.");
-        setLoading(false);
-        return;
+      setMessage("Passwords do not match.");
+      setLoading(false);
+      return;
     }
-
-    const { creds } = formData;
 
     try {
       const res = await api.post("/api/auth/signup", formData);
-      // console.log(res);
       if (res.status === 201) {
-        // console.log(res);
-        localStorage.setItem("ACCESS_TOKEN", res.data.token);
+        localStorage.setItem("ACCESS_TOKEN", res.data.token as string);
         handleSuccess("Registration Successful!");
         setTimeout(() => {
           navigate("/home");
@@ -111,17 +113,15 @@ const Signup = () => {
       }
     } catch (err) {
       localStorage.clear();
-      handleError(err);
+      handleError("Registration Failed!");
       setTimeout(() => {
         navigate("/login");
       }, 1500);
     }
 
-    // Simulate a successful network request with a delay.
     setTimeout(() => {
       setLoading(false);
       setMessage('Account created successfully! Redirecting to your Dashboard...');
-      // console.log(formData);
     }, 0);
   };
 

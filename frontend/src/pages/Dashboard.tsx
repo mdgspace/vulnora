@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, ReactElement } from 'react';
 import {
   Shield, Zap, Search, AlertTriangle, CheckCircle, XCircle, Loader,
   Globe, Code, Settings, FileX, Upload, Terminal, Key, Bomb,
@@ -6,8 +6,35 @@ import {
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 
-// Define attack types
-const attackTypes = [
+interface AttackType {
+  id: string;
+  name: string;
+  description: string;
+  icon: ReactElement;
+  severity: string;
+}
+
+interface ScanResult {
+  attackType: string;
+  status: string;
+  details: string;
+  fullLogs?: ScanData;
+  recommendation?: string;
+}
+
+interface ScanData {
+  vulnerable?: boolean;
+  error?: string;
+  vulnerability_detected?: boolean;
+  warning?: string;
+  potential_risk?: boolean;
+  summary?: string;
+  message?: string;
+  recommendation?: string;
+  [key: string]: unknown;
+}
+
+const attackTypes: AttackType[] = [
   { id: 'sql_injection', name: 'SQL Injection', description: 'Tests for database injection vulnerabilities', icon: <Code className="w-4 h-4" />, severity: 'critical' },
   { id: 'path_traversal', name: 'Directory Traversal', description: 'Tests for unauthorized file access', icon: <FileX className="w-4 h-4" />, severity: 'high' },
   { id: 'insecure_deserialization', name: 'Insecure Deserialization', description: 'Detects vulnerabilities in data deserialization', icon: <Settings className="w-4 h-4" />, severity: 'critical' },
@@ -18,23 +45,22 @@ const attackTypes = [
   { id: 'IP Scratching', name: 'IP Scratching', description: 'Analyzes URL and collects logs', icon: <Globe className="w-4 h-4" />, severity: 'medium' }
 ];
 
-const Dashboard = () => {
-  const [domain, setDomain] = useState('');
-  const [selectedAttacks, setSelectedAttacks] = useState([]);
-  const [isScanning, setIsScanning] = useState(false);
-  const [scanProgress, setScanProgress] = useState(0);
-  const [scanResults, setScanResults] = useState([]);
-  const [currentScan, setCurrentScan] = useState('');
-  const [expandedLogs, setExpandedLogs] = useState({});
+const Dashboard = (): ReactElement => {
+  const [domain, setDomain] = useState<string>('');
+  const [selectedAttacks, setSelectedAttacks] = useState<string[]>([]);
+  const [isScanning, setIsScanning] = useState<boolean>(false);
+  const [scanProgress, setScanProgress] = useState<number>(0);
+  const [scanResults, setScanResults] = useState<ScanResult[]>([]);
+  const [currentScan, setCurrentScan] = useState<string>('');
+  const [expandedLogs, setExpandedLogs] = useState<Record<string, boolean>>({});
 
-  // Toggle attacks
-  const handleAttackToggle = (attackId) => {
+  const handleAttackToggle = (attackId: string): void => {
     setSelectedAttacks((prev) =>
       prev.includes(attackId) ? prev.filter((id) => id !== attackId) : [...prev, attackId]
     );
   };
 
-  const selectAllAttacks = () => {
+  const selectAllAttacks = (): void => {
     if (selectedAttacks.length === attackTypes.length) {
       setSelectedAttacks([]);
     } else {
@@ -42,27 +68,27 @@ const Dashboard = () => {
     }
   };
 
-  const toggleLogs = (attackId) => {
-    setExpandedLogs((prev) => ({ ...prev, [attackId]: !prev[attackId] }));
+  const toggleLogs = (attackId: string): void => {
+    setExpandedLogs((prev: Record<string, boolean>) => ({ ...prev, [attackId]: !prev[attackId] }));
   };
 
-  const copyLogs = (logs) => {
+  const copyLogs = (logs: ScanData): void => {
     navigator.clipboard.writeText(JSON.stringify(logs, null, 2));
   };
 
-  const determineStatus = (result) => {
+  const determineStatus = (result: ScanData): string => {
     if (result.vulnerable === true || result.error || result.vulnerability_detected) return 'vulnerable';
     if (result.warning || result.potential_risk) return 'warning';
     return 'secure';
   };
 
-  const getSummaryDetails = (result) => {
-    if (result.summary || result.message) return result.summary || result.message;
+  const getSummaryDetails = (result: ScanData | string): string => {
     if (typeof result === 'string') return result;
+    if (result.summary || result.message) return result.summary || result.message || '';
     return 'Scan completed. Check logs for details.';
   };
 
-  const startScan = async () => {
+  const startScan = async (): Promise<void> => {
     if (!domain || selectedAttacks.length === 0) return;
 
     setIsScanning(true);
@@ -83,21 +109,22 @@ const Dashboard = () => {
       });
 
       if (!res.ok) {
-        const errorData = await res.json();
+        const errorData = await res.json() as ScanData;
         console.error('[SCAN API ERROR]', errorData);
         setScanResults([{ attackType: 'Error', status: 'vulnerable', details: errorData.message || 'Scan failed' }]);
       } else {
-        const data = await res.json();
+        const data = await res.json() as { result?: { results?: Record<string, unknown> } };
         console.log('[SCAN API RESPONSE]', data);
 
-        const processedResults = Object.entries(data.result?.results || {}).map(([attackType, rawResult]) => {
-          const status = determineStatus(rawResult);
+        const processedResults: ScanResult[] = Object.entries(data.result?.results || {}).map(([attackType, rawResult]) => {
+          const scanData = rawResult as ScanData;
+          const status = determineStatus(scanData);
           return {
             attackType,
             status,
-            details: getSummaryDetails(rawResult),
-            fullLogs: rawResult,
-            recommendation: rawResult.recommendation || (status === 'vulnerable' ? 'Review the logs and apply security fixes.' : undefined)
+            details: getSummaryDetails(scanData),
+            fullLogs: scanData,
+            recommendation: scanData.recommendation || (status === 'vulnerable' ? 'Review the logs and apply security fixes.' : undefined)
           };
         });
 
@@ -113,7 +140,7 @@ const Dashboard = () => {
     setCurrentScan('');
   };
 
-  const getSeverityColor = (severity) => {
+  const getSeverityColor = (severity: string): string => {
     switch (severity) {
       case 'critical': return 'text-red-400';
       case 'high': return 'text-orange-400';
@@ -123,7 +150,7 @@ const Dashboard = () => {
     }
   };
 
-  const getStatusIcon = (status) => {
+  const getStatusIcon = (status: string): ReactElement | null => {
     switch (status) {
       case 'vulnerable': return <XCircle className="w-5 h-5 text-red-400" />;
       case 'secure': return <CheckCircle className="w-5 h-5 text-green-400" />;
@@ -291,11 +318,14 @@ const Dashboard = () => {
                           >
                             {expandedLogs[result.attackType] ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                             View Raw Logs
-                            <Copy
-                              className="w-4 h-4 ml-auto cursor-pointer hover:text-white"
-                              onClick={(e) => { e.stopPropagation(); copyLogs(result.fullLogs); }}
-                              title="Copy logs"
-                            />
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); if (result.fullLogs) copyLogs(result.fullLogs); }}
+                              className="ml-auto p-0 bg-transparent border-none cursor-pointer"
+                              aria-label="Copy logs"
+                            >
+                              <Copy className="w-4 h-4 text-green-400 hover:text-white" />
+                            </button>
                           </button>
                           {expandedLogs[result.attackType] && (
                             <div className="mt-2 p-3 bg-black/50 rounded border border-gray-700 overflow-auto max-h-60">

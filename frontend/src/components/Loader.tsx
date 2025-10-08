@@ -1,14 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Loader, Code, Shield } from 'lucide-react';
+import { useState, useEffect, ReactElement } from 'react';
+import { Loader, Code } from 'lucide-react';
 
-// The main App component for the loading page.
-const Load = () => {
-  // State variables to manage the loading status and the dynamic activity log.
-  const [statusMessage, setStatusMessage] = useState('Initializing system...');
-  const [activityLog, setActivityLog] = useState(['']);
+const Load = (): ReactElement => {
+  const [statusMessage, setStatusMessage] = useState<string>('Initializing system...');
+  const [activityLog, setActivityLog] = useState<string[]>(['']);
 
-  // An array of messages to simulate different, non-finite loading stages.
-  const loadingMessages = [
+  const loadingMessages: string[] = [
     'Establishing secure connection...',
     'Verifying cryptographic keys...',
     'Compiling core modules...',
@@ -25,8 +22,7 @@ const Load = () => {
     'Synchronizing with main server...'
   ];
 
-  // An array of fake log lines for the activity log.
-  const logLines = [
+  const logLines: string[] = [
     '> systemd start networkd...',
     '[ OK ] Found new protocol stack on iface lo',
     '[ INFO ] Establishing connection to gateway...',
@@ -50,28 +46,22 @@ const Load = () => {
     '> service monitor start'
   ];
 
-  // The useEffect hook simulates the continuous loading process.
   useEffect(() => {
-    let messageInterval;
-    let logInterval;
-
-    // Interval for updating the status message.
-    messageInterval = setInterval(() => {
-      setStatusMessage(prevMessage => {
+    const messageInterval = setInterval(() => {
+      setStatusMessage((prevMessage: string) => {
         const currentIndex = loadingMessages.indexOf(prevMessage);
         const nextIndex = (currentIndex + 1) % loadingMessages.length;
-        return loadingMessages[nextIndex];
+        const nextMessage = loadingMessages[nextIndex];
+        return nextMessage !== undefined ? nextMessage : prevMessage;
       });
     }, 300);
 
-    // Interval for adding new log lines.
-    logInterval = setInterval(() => {
-      setActivityLog(prevLog => {
-        // Get a random log line from the array.
-        const randomLine = logLines[Math.floor(Math.random() * logLines.length)];
-        const newLog = [...prevLog, randomLine];
+    const logInterval = setInterval(() => {
+      setActivityLog((prevLog: string[]) => {
+        const randomIndex = Math.floor(Math.random() * logLines.length);
+        const randomLine = logLines[randomIndex];
+        const newLog = [...prevLog, randomLine !== undefined ? randomLine : ''];
         
-        // Keep the log at a maximum of 8 lines to create the "rolling" effect.
         if (newLog.length > 8) {
           return newLog.slice(newLog.length - 8);
         }
@@ -79,40 +69,32 @@ const Load = () => {
       });
     }, 100);
 
-    // Clean up the intervals when the component unmounts.
     return () => {
       clearInterval(messageInterval);
       clearInterval(logInterval);
     };
-  }, []);
+  }, [loadingMessages, logLines]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 text-green-400 font-mono relative overflow-hidden p-4">
-      {/* Background Grid Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,65,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,65,0.03)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
 
-      {/* Main content container */}
       <div className="relative z-10 w-full max-w-xl mx-auto text-center">
-        {/* Animated Loader Icon */}
         <div className="flex justify-center mb-8">
           <Loader size={64} strokeWidth={1} className="animate-spin text-green-400" />
         </div>
 
-        {/* Dynamic Status Message */}
         <h1 className="text-xl md:text-2xl font-bold mb-4 text-white">{statusMessage}</h1>
 
-        {/* The new dynamic activity log container */}
         <div className="w-full h-40 bg-black/40 border border-green-400/20 rounded-lg p-4 shadow-inner overflow-hidden">
           <pre className="text-sm text-left leading-tight whitespace-pre-wrap break-words">
-            {activityLog.map((line, index) => (
+            {activityLog.map((line: string, index: number) => (
               <div key={index} className="opacity-70 transition-all duration-300 transform translate-y-0">{line}</div>
             ))}
-            {/* Blinking cursor for terminal vibe */}
             <span className="animate-pulse">_</span>
           </pre>
         </div>
 
-        {/* Footer Text */}
         <p className="mt-6 text-sm text-gray-400">
           <Code size={16} className="inline mr-2 text-green-400" />
           Preparing a secure environment. Please wait.
@@ -120,6 +102,6 @@ const Load = () => {
       </div>
     </div>
   );
-}
+};
 
 export default Load;
