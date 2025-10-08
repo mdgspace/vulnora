@@ -4,6 +4,7 @@ import { handleSuccess } from '../components/utils';
 import { ToastContainer } from 'react-toastify';
 import { jwtDecode } from "jwt-decode";
 import { Link, useNavigate } from 'react-router-dom';
+import { handleError } from '../components/utils';
 import api from '../components/api';
 
 // The main App component which renders the entire signup page.
