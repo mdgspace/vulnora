@@ -13,12 +13,14 @@ const Signup = () => {
   useEffect(() => {
       try{
         const token = localStorage.getItem("ACCESS_TOKEN");
-        const decoded = jwtDecode(token);
-        const tokenExpiration = decoded.exp;
-        const now = Date.now() / 1000;
-        
-        if (token && tokenExpiration > now) {
-            navigate("/home");
+        if (token) {
+          const decoded = jwtDecode(token);
+          const tokenExpiration = decoded.exp;
+          const now = Date.now() / 1000;
+          
+          if (token && tokenExpiration > now) {
+              navigate("/home");
+          }
         }
       } catch(err){
         console.error(err);
