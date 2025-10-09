@@ -4,7 +4,7 @@ import os
 
 from app.routes.domain_routes import domain_bp
 
-app = Flask(__name__)
+app = flask(__name__)
 
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
