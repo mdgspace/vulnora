@@ -5,6 +5,7 @@ import { ToastContainer } from 'react-toastify';
 import { jwtDecode } from "jwt-decode";
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../components/api';
+import { handleError } from '../components/utils';
 
 // The main App component which renders the entire signup page.
 const Signup = () => {
