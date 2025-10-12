@@ -41,7 +41,7 @@ const HistoryPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-900 text-green-400 font-mono relative overflow-x-hidden">
+    <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-green-400 font-mono relative overflow-x-hidden">
       {/* Background Grid */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,65,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,65,0.03)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
       <Navbar />
@@ -51,11 +51,11 @@ const HistoryPage = () => {
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-4">
             <History className="w-12 h-12 text-green-400 mr-4" />
-            <h1 className="text-4xl md:text-6xl font-bold text-white tracking-wider">
+            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white tracking-wider">
               SCAN <span className="text-green-400">HISTORY</span>
             </h1>
           </div>
-          <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             Review past security reports for monitored websites.
           </p>
           <div className="w-24 h-1 bg-gradient-to-r from-transparent via-green-400 to-transparent mx-auto mt-4"></div>

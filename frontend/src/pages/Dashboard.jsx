@@ -133,24 +133,24 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-green-400 font-mono relative overflow-x-hidden">
+    <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-green-400 font-mono relative overflow-x-hidden">
       <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,65,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,65,0.03)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
       <Navbar />
       <div className="relative z-10 container mx-auto px-6 pt-28 pb-8">
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-4">
             <Shield className="w-12 h-12 text-green-400 mr-4" />
-            <h1 className="text-4xl md:text-6xl font-bold text-white tracking-wider">
+            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white tracking-wider">
               VULN<span className="text-green-400">ORA</span>
             </h1>
           </div>
-          <p className="text-lg text-gray-400 max-w-2xl mx-auto">Advanced Web Application Security Scanner</p>
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">Advanced Web Application Security Scanner</p>
           <div className="w-24 h-1 bg-gradient-to-r from-transparent via-green-400 to-transparent mx-auto mt-4"></div>
         </div>
 
         {/* Domain Input */}
-        <div className="bg-black/40 backdrop-blur-sm border border-green-400/20 rounded-lg p-6 mb-8 shadow-2xl">
-          <h2 className="text-xl font-bold text-white mb-4 flex items-center">
+        <div className="bg-white/80 dark:bg-black/40 backdrop-blur-sm border border-gray-200 dark:border-green-400/20 rounded-lg p-6 mb-8 shadow-2xl">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
             <Globe className="w-5 h-5 mr-2" /> Target Domain
           </h2>
           <div className="flex gap-4">
@@ -159,16 +159,16 @@ const Dashboard = () => {
               value={domain}
               onChange={(e) => setDomain(e.target.value)}
               placeholder="Enter domain (e.g., example.com)"
-              className="w-full bg-gray-800/50 border border-green-400/30 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-green-400 focus:ring-2 focus:ring-green-400/20 focus:outline-none transition-all"
+              className="w-full bg-white/70 dark:bg-gray-800/50 border border-gray-300 dark:border-green-400/30 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 focus:border-green-500 dark:focus:border-green-400 focus:ring-2 focus:ring-green-400/20 focus:outline-none transition-all"
               disabled={isScanning}
             />
           </div>
         </div>
 
         {/* Attack Selection */}
-        <div className="bg-black/40 backdrop-blur-sm border border-green-400/20 rounded-lg p-6 mb-8 shadow-2xl">
+        <div className="bg-white/80 dark:bg-black/40 backdrop-blur-sm border border-gray-200 dark:border-green-400/20 rounded-lg p-6 mb-8 shadow-2xl">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-white flex items-center">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
               <Zap className="w-5 h-5 mr-2" /> Attack Vectors
             </h2>
             <button
@@ -190,22 +190,22 @@ const Dashboard = () => {
                 onClick={() => !isScanning && handleAttackToggle(attack.id)}
               >
                 <div className="flex items-start gap-3">
-                  <div className={`mt-1 ${selectedAttacks.includes(attack.id) ? 'text-green-400' : 'text-gray-500'}`}>
+                  <div className={`mt-1 ${selectedAttacks.includes(attack.id) ? 'text-green-500 dark:text-green-400' : 'text-gray-600 dark:text-gray-500'}`}>
                     {attack.icon}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className={`font-semibold ${selectedAttacks.includes(attack.id) ? 'text-white' : 'text-gray-300'}`}>
+                      <h3 className={`font-semibold ${selectedAttacks.includes(attack.id) ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-300'}`}>
                         {attack.name}
                       </h3>
                       <span className={`text-xs px-2 py-1 rounded ${getSeverityColor(attack.severity)} bg-current/10`}>
                         {attack.severity.toUpperCase()}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-500">{attack.description}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-500">{attack.description}</p>
                   </div>
                   <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                    selectedAttacks.includes(attack.id) ? 'bg-green-400 border-green-400' : 'border-gray-600'
+                    selectedAttacks.includes(attack.id) ? 'bg-green-500 dark:bg-green-400 border-green-500 dark:border-green-400' : 'border-gray-400 dark:border-gray-600'
                   }`}>
                     {selectedAttacks.includes(attack.id) && <CheckCircle className="w-3 h-3 text-black" />}
                   </div>
@@ -236,25 +236,25 @@ const Dashboard = () => {
 
         {/* Progress Bar */}
         {isScanning && (
-          <div className="bg-black/40 backdrop-blur-sm border border-green-400/20 rounded-lg p-6 mb-8">
+          <div className="bg-white/80 dark:bg-black/40 backdrop-blur-sm border border-gray-200 dark:border-green-400/20 rounded-lg p-6 mb-8">
             <div className="flex justify-center mb-8">
               <Loader size={64} strokeWidth={1} className="animate-spin text-green-400" />
             </div>
             <div className="flex justify-center mb-8">
-              <div className="w-full bg-gray-700 rounded-full h-2.5">
+              <div className="w-full bg-gray-300 dark:bg-gray-700 rounded-full h-2.5">
                 <div className="bg-green-400 h-2.5 rounded-full transition-all duration-300" style={{ width: `${scanProgress}%` }}></div>
               </div>
             </div>
             <div className="text-center">
-              <p className="text-gray-400">Currently scanning: {currentScan || 'Initializing...'}</p>
+              <p className="text-gray-600 dark:text-gray-400">Currently scanning: {currentScan || 'Initializing...'}</p>
             </div>
           </div>
         )}
 
         {/* Results */}
         {scanResults.length > 0 && (
-          <div className="bg-black/40 backdrop-blur-sm border border-green-400/20 rounded-lg p-6 shadow-2xl">
-            <h2 className="text-xl font-bold text-white mb-6 flex items-center">
+          <div className="bg-white/80 dark:bg-black/40 backdrop-blur-sm border border-gray-200 dark:border-green-400/20 rounded-lg p-6 shadow-2xl">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
               <AlertTriangle className="w-5 h-5 mr-2" /> Scan Results
             </h2>
 
@@ -272,13 +272,13 @@ const Dashboard = () => {
                     {getStatusIcon(result.status)}
                     <div className="flex-1">
                       {/* Attack name only (status label removed) */}
-                      <h3 className="font-semibold text-white mb-2">{result.attackType}</h3>
+                      <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{result.attackType}</h3>
 
-                      <p className="text-gray-300 mb-2">{result.details}</p>
+                      <p className="text-gray-700 dark:text-gray-300 mb-2">{result.details}</p>
                       {result.recommendation && (
-                        <div className="bg-gray-800/50 rounded p-3 mt-2">
-                          <p className="text-sm text-blue-400 font-semibold mb-1">Recommendation:</p>
-                          <p className="text-sm text-gray-300">{result.recommendation}</p>
+                        <div className="bg-gray-100 dark:bg-gray-800/50 rounded p-3 mt-2">
+                          <p className="text-sm text-blue-600 dark:text-blue-400 font-semibold mb-1">Recommendation:</p>
+                          <p className="text-sm text-gray-700 dark:text-gray-300">{result.recommendation}</p>
                         </div>
                       )}
 
@@ -287,19 +287,19 @@ const Dashboard = () => {
                         <div className="mt-4">
                           <button
                             onClick={() => toggleLogs(result.attackType)}
-                            className="cursor-pointer flex items-center gap-2 text-green-400 hover:text-green-300 font-medium mb-2 w-full text-left bg-transparent border-none p-0"
+                            className="cursor-pointer flex items-center gap-2 text-green-600 dark:text-green-400 hover:text-green-500 dark:hover:text-green-300 font-medium mb-2 w-full text-left bg-transparent border-none p-0"
                           >
                             {expandedLogs[result.attackType] ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                             View Raw Logs
                             <Copy
-                              className="w-4 h-4 ml-auto cursor-pointer hover:text-white"
+                              className="w-4 h-4 ml-auto cursor-pointer hover:text-gray-900 dark:hover:text-white"
                               onClick={(e) => { e.stopPropagation(); copyLogs(result.fullLogs); }}
                               title="Copy logs"
                             />
                           </button>
                           {expandedLogs[result.attackType] && (
-                            <div className="mt-2 p-3 bg-black/50 rounded border border-gray-700 overflow-auto max-h-60">
-                              <pre className="text-xs text-gray-300 whitespace-pre-wrap">
+                            <div className="mt-2 p-3 bg-gray-100 dark:bg-black/50 rounded border border-gray-300 dark:border-gray-700 overflow-auto max-h-60">
+                              <pre className="text-xs text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                                 {JSON.stringify(result.fullLogs, null, 2)}
                               </pre>
                             </div>

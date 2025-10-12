@@ -116,22 +116,22 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-green-400 font-mono relative overflow-x-hidden p-4 sm:p-8 flex items-center justify-center">
+    <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-green-400 font-mono relative overflow-x-hidden p-4 sm:p-8 flex items-center justify-center">
       {/* Background Grid Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,65,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,65,0.03)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
 
       {/* Main Signup Form Container */}
-      <div className="relative z-10 w-full max-w-lg bg-black/40 backdrop-blur-sm border border-green-400/20 rounded-xl p-8 shadow-2xl transform transition-all duration-300 hover:shadow-green-500/20">
+      <div className="relative z-10 w-full max-w-lg bg-white/80 dark:bg-black/40 backdrop-blur-sm border border-gray-200 dark:border-green-400/20 rounded-xl p-8 shadow-2xl transform transition-all duration-300 hover:shadow-green-500/20">
 
         {/* Header Section */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
-            <UserPlus className="w-10 h-10 text-green-400 mr-2" />
-            <h1 className="text-3xl font-bold text-white tracking-wider">
+            <UserPlus className="w-10 h-10 text-green-500 dark:text-green-400 mr-2" />
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-wider">
               Login
             </h1>
           </div>
-          <p className="text-gray-400">
+          <p className="text-gray-600 dark:text-gray-400">
             Login to your account.
           </p>
           <div className="w-16 h-1 bg-gradient-to-r from-transparent via-green-400 to-transparent mx-auto mt-4"></div>
@@ -141,7 +141,7 @@ const Login = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Email Input */}
           <div className="relative">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Email Address
             </label>
             <input
@@ -151,14 +151,14 @@ const Login = () => {
               value={formData.email}
               onChange={handleInputChange}
               required
-              className="w-full bg-gray-800/50 border border-green-400/30 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-green-400 focus:ring-2 focus:ring-green-400/20 focus:outline-none transition-all"
+              className="w-full bg-white/70 dark:bg-gray-800/50 border border-gray-300 dark:border-green-400/30 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 focus:border-green-500 dark:focus:border-green-400 focus:ring-2 focus:ring-green-400/20 focus:outline-none transition-all"
               placeholder="Enter your email"
             />
           </div>
 
           {/* Password Input */}
           <div className="relative">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Password
             </label>
             <input
@@ -168,7 +168,7 @@ const Login = () => {
               value={formData.password}
               onChange={handleInputChange}
               required
-              className="w-full bg-gray-800/50 border border-green-400/30 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-green-400 focus:ring-2 focus:ring-green-400/20 focus:outline-none transition-all"
+              className="w-full bg-white/70 dark:bg-gray-800/50 border border-gray-300 dark:border-green-400/30 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 focus:border-green-500 dark:focus:border-green-400 focus:ring-2 focus:ring-green-400/20 focus:outline-none transition-all"
               placeholder="Create a password"
             />
           </div>
@@ -199,10 +199,10 @@ const Login = () => {
           </div>
         )}
 
-        <div className="mt-8 text-center text-gray-400">
+        <div className="mt-8 text-center text-gray-600 dark:text-gray-400">
           <p>
             Don't have an account?{" "}
-            <Link to="/signup" className="font-medium text-[#6ab04c] hover:text-green-400 transition duration-200">
+            <Link to="/signup" className="font-medium text-green-600 dark:text-green-400 hover:text-green-500 dark:hover:text-green-300 transition duration-200">
               Sign Up
             </Link>
           </p>
