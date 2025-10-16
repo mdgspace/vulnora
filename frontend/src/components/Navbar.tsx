@@ -1,37 +1,44 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
-import api from "../components/api";LayoutDashboard
+// import api from "./api";
 import { Shield, Home, History, Info, UserCircle, LogOut, X, LayoutDashboard } from 'lucide-react';
-import { handleError } from './utils';
+// import { handleError } from './utils';
+
+interface UserData {
+  firstName?: string;
+  email?: string;
+  scansDone?: number;
+}
 
 // The Navbar component is designed to be self-contained and reusable.
 // It includes a logo, navigation links, and a user profile card.
-const Navbar = () => {
-    const navigate = useNavigate();
+const Navbar: React.FC = () => {
+  const navigate = useNavigate();
 
-  const Logout = () => {
+  const Logout = (): void => {
     localStorage.clear();
     setTimeout(() => {
       navigate("/login");
     }, 1500);
   };
+  
   // State to manage the visibility of the profile card.
-  const [showProfileCard, setShowProfileCard] = useState(false);
-  const [userData, setUserData] = useState({});
+  const [showProfileCard, setShowProfileCard] = useState<boolean>(false);
+  const [userData] = useState<UserData>({});
 
-  const fetchUserData = async () => {
-    try {
-      const res = await api.get('/api/user/profile');
-      const data = await res.data;
-      setUserData(data);
-    } catch (err) {
-      handleError('Error fetching user data:', err);
-      setTimeout(() => {
-        Logout();
-        navigate("/login");
-      }, 1500);
-    }
-  };
+  // const fetchUserData = async (): Promise<void> => {
+  //   try {
+  //     const res = await api.get('/api/user/profile');
+  //     const data: UserData = await res.data;
+  //     setUserData(data);
+  //   } catch (err) {
+  //     handleError(err);
+  //     setTimeout(() => {
+  //       Logout();
+  //       navigate("/login");
+  //     }, 1500);
+  //   }
+  // };
 
   // The main JSX for the Navbar.
   return (
@@ -63,7 +70,7 @@ const Navbar = () => {
         <div className="relative">
           <div
             className="text-gray-400 hover:text-white transition-colors cursor-pointer"
-            onClick={() => setShowProfileCard(!showProfileCard)}
+            onClick={() => setShowProfileCard((prev) => !prev)}
           >
             <UserCircle className="w-8 h-8" />
           </div>

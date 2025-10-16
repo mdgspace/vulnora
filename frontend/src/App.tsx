@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home"
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -6,8 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import History from "./pages/History";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-function App() {
-
+function App(): React.JSX.Element {
   return (
     <BrowserRouter>
       <Routes>

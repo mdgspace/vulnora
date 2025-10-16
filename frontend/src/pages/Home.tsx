@@ -1,9 +1,8 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { Shield, BugPlay, Rocket, Lock, ShieldAlert } from 'lucide-react';
 
 // Main App component containing the entire landing page
-export default function App() {
+export default function Home(): React.JSX.Element {
   return (
     <div className="bg-gray-950 text-gray-200 font-sans min-h-screen">
       

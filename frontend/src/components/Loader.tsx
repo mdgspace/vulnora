@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Loader, Code, Shield } from 'lucide-react';
+import { Loader, Code } from 'lucide-react';
 
 // The main App component for the loading page.
-const Load = () => {
+const Load: React.FC = () => {
   // State variables to manage the loading status and the dynamic activity log.
-  const [statusMessage, setStatusMessage] = useState('Initializing system...');
-  const [activityLog, setActivityLog] = useState(['']);
+  const [statusMessage, setStatusMessage] = useState<string>('Initializing system...');
+  const [activityLog, setActivityLog] = useState<string[]>(['']);
 
   // An array of messages to simulate different, non-finite loading stages.
-  const loadingMessages = [
+  const loadingMessages: string[] = [
     'Establishing secure connection...',
     'Verifying cryptographic keys...',
     'Compiling core modules...',
@@ -26,7 +26,7 @@ const Load = () => {
   ];
 
   // An array of fake log lines for the activity log.
-  const logLines = [
+  const logLines: string[] = [
     '> systemd start networkd...',
     '[ OK ] Found new protocol stack on iface lo',
     '[ INFO ] Establishing connection to gateway...',
@@ -52,8 +52,8 @@ const Load = () => {
 
   // The useEffect hook simulates the continuous loading process.
   useEffect(() => {
-    let messageInterval;
-    let logInterval;
+    let messageInterval: number;
+    let logInterval: number;
 
     // Interval for updating the status message.
     messageInterval = setInterval(() => {
@@ -104,9 +104,9 @@ const Load = () => {
         {/* The new dynamic activity log container */}
         <div className="w-full h-40 bg-black/40 border border-green-400/20 rounded-lg p-4 shadow-inner overflow-hidden">
           <pre className="text-sm text-left leading-tight whitespace-pre-wrap break-words">
-            {activityLog.map((line, index) => (
-              <div key={index} className="opacity-70 transition-all duration-300 transform translate-y-0">{line}</div>
-            ))}
+        {activityLog.map((line: string, index: number) => (
+          <div key={index} className="opacity-70 transition-all duration-300 transform translate-y-0">{line}</div>
+        ))}
             {/* Blinking cursor for terminal vibe */}
             <span className="animate-pulse">_</span>
           </pre>

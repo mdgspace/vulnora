@@ -1,13 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, type ChangeEvent } from 'react';
 import {
   Shield, Zap, Search, AlertTriangle, CheckCircle, XCircle, Loader,
   Globe, Code, Settings, FileX, Upload, Terminal, Key, Bomb,
   ChevronDown, ChevronUp, Copy
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import type { ReactNode } from 'react';
+
+interface AttackType {
+  id: string;
+  name: string;
+  description: string;
+  icon: ReactNode;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+}
+
+interface ScanResult {
+  attackType: string;
+  status: 'vulnerable' | 'secure' | 'warning';
+  details: string;
+  fullLogs?: any;
+  recommendation?: string;
+}
+
+interface ExpandedLogs {
+  [key: string]: boolean;
+}
 
 // Define attack types
-const attackTypes = [
+const attackTypes: AttackType[] = [
   { id: 'sql_injection', name: 'SQL Injection', description: 'Tests for database injection vulnerabilities', icon: <Code className="w-4 h-4" />, severity: 'critical' },
   { id: 'path_traversal', name: 'Directory Traversal', description: 'Tests for unauthorized file access', icon: <FileX className="w-4 h-4" />, severity: 'high' },
   { id: 'insecure_deserialization', name: 'Insecure Deserialization', description: 'Detects vulnerabilities in data deserialization', icon: <Settings className="w-4 h-4" />, severity: 'critical' },
@@ -18,23 +39,23 @@ const attackTypes = [
   { id: 'IP Scratching', name: 'IP Scratching', description: 'Analyzes URL and collects logs', icon: <Globe className="w-4 h-4" />, severity: 'medium' }
 ];
 
-const Dashboard = () => {
-  const [domain, setDomain] = useState('');
-  const [selectedAttacks, setSelectedAttacks] = useState([]);
-  const [isScanning, setIsScanning] = useState(false);
-  const [scanProgress, setScanProgress] = useState(0);
-  const [scanResults, setScanResults] = useState([]);
-  const [currentScan, setCurrentScan] = useState('');
-  const [expandedLogs, setExpandedLogs] = useState({});
+const Dashboard: React.FC = () => {
+  const [domain, setDomain] = useState<string>('');
+  const [selectedAttacks, setSelectedAttacks] = useState<string[]>([]);
+  const [isScanning, setIsScanning] = useState<boolean>(false);
+  const [scanProgress, setScanProgress] = useState<number>(0);
+  const [scanResults, setScanResults] = useState<ScanResult[]>([]);
+  const [currentScan, setCurrentScan] = useState<string>('');
+  const [expandedLogs, setExpandedLogs] = useState<ExpandedLogs>({});
 
   // Toggle attacks
-  const handleAttackToggle = (attackId) => {
+  const handleAttackToggle = (attackId: string): void => {
     setSelectedAttacks((prev) =>
       prev.includes(attackId) ? prev.filter((id) => id !== attackId) : [...prev, attackId]
     );
   };
 
-  const selectAllAttacks = () => {
+  const selectAllAttacks = (): void => {
     if (selectedAttacks.length === attackTypes.length) {
       setSelectedAttacks([]);
     } else {
@@ -42,27 +63,27 @@ const Dashboard = () => {
     }
   };
 
-  const toggleLogs = (attackId) => {
+  const toggleLogs = (attackId: string): void => {
     setExpandedLogs((prev) => ({ ...prev, [attackId]: !prev[attackId] }));
   };
 
-  const copyLogs = (logs) => {
+  const copyLogs = (logs: any): void => {
     navigator.clipboard.writeText(JSON.stringify(logs, null, 2));
   };
 
-  const determineStatus = (result) => {
+  const determineStatus = (result: any): 'vulnerable' | 'secure' | 'warning' => {
     if (result.vulnerable === true || result.error || result.vulnerability_detected) return 'vulnerable';
     if (result.warning || result.potential_risk) return 'warning';
     return 'secure';
   };
 
-  const getSummaryDetails = (result) => {
+  const getSummaryDetails = (result: any): string => {
     if (result.summary || result.message) return result.summary || result.message;
     if (typeof result === 'string') return result;
     return 'Scan completed. Check logs for details.';
   };
 
-  const startScan = async () => {
+  const startScan = async (): Promise<void> => {
     if (!domain || selectedAttacks.length === 0) return;
 
     setIsScanning(true);
@@ -90,7 +111,7 @@ const Dashboard = () => {
         const data = await res.json();
         console.log('[SCAN API RESPONSE]', data);
 
-        const processedResults = Object.entries(data.result?.results || {}).map(([attackType, rawResult]) => {
+        const processedResults = Object.entries(data.result?.results || {}).map(([attackType, rawResult]: [string, any]) => {
           const status = determineStatus(rawResult);
           return {
             attackType,
@@ -113,7 +134,7 @@ const Dashboard = () => {
     setCurrentScan('');
   };
 
-  const getSeverityColor = (severity) => {
+  const getSeverityColor = (severity: string): string => {
     switch (severity) {
       case 'critical': return 'text-red-400';
       case 'high': return 'text-orange-400';
@@ -123,7 +144,7 @@ const Dashboard = () => {
     }
   };
 
-  const getStatusIcon = (status) => {
+  const getStatusIcon = (status: string): ReactNode | null => {
     switch (status) {
       case 'vulnerable': return <XCircle className="w-5 h-5 text-red-400" />;
       case 'secure': return <CheckCircle className="w-5 h-5 text-green-400" />;
@@ -157,7 +178,7 @@ const Dashboard = () => {
             <input
               type="text"
               value={domain}
-              onChange={(e) => setDomain(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setDomain(e.target.value)}
               placeholder="Enter domain (e.g., example.com)"
               className="w-full bg-gray-800/50 border border-green-400/30 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-green-400 focus:ring-2 focus:ring-green-400/20 focus:outline-none transition-all"
               disabled={isScanning}
@@ -294,7 +315,6 @@ const Dashboard = () => {
                             <Copy
                               className="w-4 h-4 ml-auto cursor-pointer hover:text-white"
                               onClick={(e) => { e.stopPropagation(); copyLogs(result.fullLogs); }}
-                              title="Copy logs"
                             />
                           </button>
                           {expandedLogs[result.attackType] && (
