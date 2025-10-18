@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Loader, UserPlus } from 'lucide-react';
-import { handleSuccess } from '../components/utils';
+import { handleSuccess, handleError } from '../components/utils';
 import { ToastContainer } from 'react-toastify';
 import { jwtDecode } from "jwt-decode";
 import { Link, useNavigate } from 'react-router-dom';
@@ -83,7 +83,7 @@ const Login = () => {
     }
 
     try {
-      const res = await api.post("/api/auth/login", formData);
+      const res = await api.post("http://localhost:8081/api/auth/login", formData);
       // console.log(res);
       if (res.status === 200) {
         // console.log(res);
